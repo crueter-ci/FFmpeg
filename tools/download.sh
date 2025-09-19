@@ -1,12 +1,11 @@
 #!/bin/sh
 
-# Downloads the specified version of the software.
+# Downloads the specified version of FFmpeg.
 # Requires: wget
 
 source tools/common.sh || exit 1
 
-# This shouldn't need to be changed unless the software is on GitLab or otherwise
-DOWNLOAD_URL="https://github.com/$REPO/releases/download/$TAG/$ARTIFACT"
+DOWNLOAD_URL="https://github.com/$REPO/archive/refs/tags/$ARTIFACT"
 
 while true; do
    if [ ! -f $ARTIFACT ]; then

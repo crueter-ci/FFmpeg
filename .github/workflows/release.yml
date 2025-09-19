@@ -43,14 +43,13 @@ jobs:
         uses: softprops/action-gh-release@v2.3.2
         with:
           body_path: ./changelog.md
-          # Change to your software name
-          name: OpenSSL ${{ env.VERSION }}
+          name: FFmpeg ${{ env.VERSION }}
           tag_name: v${{ env.VERSION }}
           files: |
             windows-*/*.tar.zst*
             android/*.tar.zst*
-            solaris/*.tar.zst*
-            freebsd/*.tar.zst*
-            linux/*.tar.zst*
+            # solaris-*/*.tar.zst*
+            # freebsd-*/*.tar.zst*
+            linux-*/*.tar.zst*
 
           make_latest: true

@@ -6,7 +6,7 @@
 # Change to the current repo
 source tools/common.sh || exit 1
 
-BASE_DOWNLOAD_URL="https://github.com/crueter-ci/OpenSSL/releases/download"
+BASE_DOWNLOAD_URL="https://github.com/crueter-ci/FFmpeg/releases/download"
 TAG=v$VERSION
 
 artifact() {
@@ -31,6 +31,7 @@ echo "| ----- | ------- | --------- | --------- |"
 artifact Android android
 artifact "Windows (amd64)" windows-amd64
 artifact "Windows (arm64)" windows-arm64
-artifact Linux linux
-artifact Solaris solaris
-artifact FreeBSD freebsd
+artifact "Linux (amd64)" linux
+artifact "Linux (aarch64)" linux-aarch64
+# artifact Solaris solaris
+# artifact FreeBSD freebsd

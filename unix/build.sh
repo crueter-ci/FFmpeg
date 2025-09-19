@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 
 source tools/common.sh || exit 1
 
@@ -8,41 +8,69 @@ source tools/common.sh || exit 1
 [ -z "$PLATFORM" ] && PLATFORM=linux
 
 [ "$PLATFORM" == "solaris" ] && MAKE=gmake || MAKE=make
+[ "$ARCH" != "amd64" ] && PLATFORM=$PLATFORM-$ARCH
 
 configure() {
     log_file=$1
 
+    FFmpeg_HWACCEL_FLAGS=(
+        --enable-hwaccel=h264_vaapi
+        --enable-hwaccel=vp8_vaapi
+        --enable-hwaccel=vp9_vaapi
+        --enable-cuvid
+        --enable-ffnvcodec
+        --enable-nvdec
+        --enable-hwaccel=h264_nvdec
+        --enable-hwaccel=vp8_nvdec
+        --enable-hwaccel=vp9_nvdec
+    )
+
     # Configure here (e.g. cmake or the like)
+    ./configure \
+        --disable-avdevice \
+        --disable-avformat \
+        --disable-doc \
+        --disable-everything \
+        --disable-ffmpeg \
+        --disable-ffprobe \
+        --disable-network \
+        --disable-swresample \
+        --enable-shared \
+        --enable-decoder=h264 \
+        --enable-decoder=vp8 \
+        --enable-decoder=vp9 \
+        --enable-filter=yadif,scale \
+        --enable-pic \
+        --prefix=/ \
+        "${FFmpeg_HWACCEL_FLAGS[@]}"
 }
 
 build() {
     log_file=$1
 
     echo "Building..."
-    # Enter your target here (e.g build_libs) or cmake build command
-    make -j$(nproc) 2>&1 1>>${log_file} \
+
+    $MAKE -j$(nproc) 2>&1 1>>${log_file} \
         | tee -a ${log_file} || exit 1
 }
 
 strip_libs() {
     # Change to match your library's names
-    find . -name "libcrypto*.so" -exec strip {} \;
-    find . -name "libssl*.so" -exec strip {} \;
+    find . -name "lib*.so" -exec strip {} \;
 }
 
 copy_build_artifacts() {
     echo "Copying artifacts..."
-    mkdir -p $OUT_DIR/lib
+    mkdir -p $OUT_DIR
 
-    # Change to match your library's names
-    cp lib{ssl,crypto}.{so,a} "$OUT_DIR/lib" || exit 1
+    $MAKE install DESTDIR=$OUT_DIR
+    rm -rf "$OUT_DIR/lib/pkgconfig"
 }
 
 copy_cmake() {
     cp $ROOTDIR/CMakeLists.txt "$OUT_DIR"
 
-    # Rename "software" to your software's name
-    cp $ROOTDIR/unix/software.cmake "$OUT_DIR"
+    cp $ROOTDIR/unix/ffmpeg.cmake "$OUT_DIR"
 }
 
 package() {
@@ -73,7 +101,7 @@ echo "Extracting $PRETTY_NAME $VERSION"
 rm -fr $DIRECTORY
 tar xf "$ROOTDIR/$ARTIFACT"
 
-mv "$FILENAME-$VERSION" "$FILENAME-$VERSION-$ARCH"
+mv "$DIRECTORY" "$FILENAME-$VERSION-$ARCH"
 pushd "$FILENAME-$VERSION-$ARCH"
 
 log_file="build_${ARCH}_${VERSION}.log"
@@ -90,10 +118,6 @@ copy_build_artifacts
 if [ ! -d "$OUT_DIR/include" ]; then
     cp -p -R include "$OUT_DIR/" || exit 1
 fi
-
-# Clean include folder
-find "$OUT_DIR/" -name "*.in" -exec rm -f {} \;
-find "$OUT_DIR/" -name "*.def" -exec rm -f {} \;
 
 copy_cmake
 package
