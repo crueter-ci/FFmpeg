@@ -50,6 +50,8 @@ configure() {
         --arch=arm64
         --target-os=mingw32
         --cross-prefix=aarch64-w64-mingw32-
+        --extra-cflags="-I$MINGW/include"
+        --extra-ldflags="-L$MINGW/lib"
     )
 
     AMD_FLAGS=(
@@ -66,7 +68,12 @@ configure() {
         --prefix=/
     )
 
-    [ "$TARGET" = "windows-amd64" ] && ARCH_FLAGS="${AMD_FLAGS[@]}" || ARCH_FLAGS="${ARM_FLAGS[@]}"
+    if [ "$TARGET" = "windows-amd64" ]; then
+        ARCH_FLAGS="${AMD_FLAGS[@]}"
+    else
+        export PKG_CONFIG_PATH="$MINGW/aarch64-w64-mingw32/lib/pkgconfig"
+        ARCH_FLAGS="${ARM_FLAGS[@]}"
+    fi
 
     echo "Architecture flags: $ARCH_FLAGS"
 

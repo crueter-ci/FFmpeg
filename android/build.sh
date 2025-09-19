@@ -58,7 +58,7 @@ mkdir -p $OUT_DIR
 
 cp -r prebuilt/android-arm64/{ffmpeg,libvpx,x264}/* $OUT_DIR/
 
-export PATH="$ANDROID_NDK_ROOT:$PATH"
+export PATH="$ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH"
 find . -name "*.so" -exec llvm-strip --strip-all {} \;
 
 cp $ROOTDIR/CMakeLists.txt "$OUT_DIR"

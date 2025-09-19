@@ -1,5 +1,6 @@
 #!/bin/sh -ex
 
+sudo apt-get update
 sudo apt install build-essential nasm yasm cmake libc6 libc6-dev unzip wget libnuma1 libnuma-dev clang git libffmpeg-nvenc-dev libva-dev libvulkan-dev
 
 if [ "$TARGET" = "windows-amd64" ]; then
@@ -22,4 +23,5 @@ if [ "$TARGET" = "windows-arm64" ]; then
   tar xf ../$ARTIFACT
 
   echo "$PWD" >> $GITHUB_PATH
+  echo "MINGW=$PWD" >> $GITHUB_ENV
 fi
