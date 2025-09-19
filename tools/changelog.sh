@@ -4,7 +4,7 @@
 # Requires: echo
 
 # Change to the current repo
-source tools/common.sh || exit 1
+. tools/common.sh || exit 1
 
 BASE_DOWNLOAD_URL="https://github.com/crueter-ci/FFmpeg/releases/download"
 TAG=v$VERSION

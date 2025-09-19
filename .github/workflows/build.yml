@@ -4,10 +4,11 @@ on:
   workflow_call:
 
 env:
-  VERSION: 8.0
+  VERSION: "8.0"
 
 jobs:
   windows:
+    name: "Windows ${{ matrix.arch }}"
     runs-on: ${{ matrix.runs-on }}
     strategy:
       fail-fast: false
@@ -44,6 +45,7 @@ jobs:
           path: artifacts/*
 
   android:
+    name: Android
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -54,7 +56,7 @@ jobs:
       - uses: nttld/setup-ndk@v1
         id: setup-ndk
         with:
-          ndk-version: 25.2.9519653
+          ndk-version: r25c
 
       - name: Build
         shell: bash
@@ -72,6 +74,7 @@ jobs:
           path: artifacts/*
 
   unix:
+    name: "${{ matrix.platform }} ${{ matrix.arch }}"
     runs-on: ${{ matrix.runs-on }}
     strategy:
       fail-fast: false
@@ -104,7 +107,8 @@ jobs:
 
       # - name: Build (Solaris)
       #   if: matrix.platform == 'solaris'
-      #   uses: vmactions/solaris-vm@v1.1.4
+      #   uses: vmactions/solaris-vm@v1.1.4    name: "Windows ${{ matrix.arch }}"
+
       #   with:
       #     release: "11.4-gcc"
       #     usesh: true
@@ -130,6 +134,11 @@ jobs:
       #       ls unix
       #       chmod a+x ./unix/build.sh
       #       bash unix/build.sh
+
+      - name: Get Dependencies
+        run: |
+          chmod a+x ./unix/linux-deps.sh
+          ./unix/linux-deps.sh
 
       - name: Build (Linux)
         if: matrix.platform == 'linux'

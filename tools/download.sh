@@ -3,7 +3,7 @@
 # Downloads the specified version of FFmpeg.
 # Requires: wget
 
-source tools/common.sh || exit 1
+. tools/common.sh || exit 1
 
 DOWNLOAD_URL="https://github.com/$REPO/archive/refs/tags/$ARTIFACT"
 

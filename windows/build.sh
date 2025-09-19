@@ -4,7 +4,7 @@ set -e
 
 export PKG_CONFIG_PATH=/usr/lib/pkgconfig/
 
-source tools/common.sh || exit 1
+. tools/common.sh || exit 1
 
 [ -z "$OUT_DIR" ] && OUT_DIR=$PWD/out
 

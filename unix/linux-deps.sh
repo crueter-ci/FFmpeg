@@ -1,6 +1,6 @@
 #!/bin/sh -ex
 
-sudo apt install build-essential nasm yasm cmake libc6 libc6-dev unzip wget libnuma1 libnuma-dev clang git libffmpeg-nvenc-dev libva-dev vulkan-headers
+sudo apt install build-essential nasm yasm cmake libc6 libc6-dev unzip wget libnuma1 libnuma-dev clang git libffmpeg-nvenc-dev libva-dev libvulkan-dev
 
 if [ "$TARGET" = "windows-amd64" ]; then
   sudo apt-get gcc-mingw-w64-x86-64 mingw-w64-tools nvidia-driver-575
@@ -19,4 +19,6 @@ if [ "$TARGET" = "windows-arm64" ]; then
   mkdir -p mingw
   cd mingw
   tar xf ../$ARTIFACT
+
+  echo "$PWD" >> $GITHUB_PATH
 fi
