@@ -32,7 +32,6 @@ configure() {
         --disable-swresample
         --disable-vaapi
         --disable-vdpau
-        --enable-d3d11va
         --enable-shared
         --enable-dxva2
         --enable-decoder=h264
@@ -43,7 +42,7 @@ configure() {
         --enable-filter=yadif,scale
         --extra-cflags=-I/usr/include/vulkan
         --extra-cflags=-I/usr/include/AMF
-        --enable-hwaccel={h264_dxva2,h264_d3d11va,h264_d3d11va2,h264_vulkan,vp9_dxva2,vp9_d3d11va,vp9_d3d11va2,vp9_vulkan}
+        --enable-hwaccel={h264_dxva2,h264_vulkan,vp9_vulkan}
     )
 
     ARM_FLAGS=(
@@ -54,15 +53,17 @@ configure() {
         --extra-ldflags="-L$MINGW/aarch64-w64-mingw32/lib"
     )
 
+    # TODO(crueter): fix dxva_h issue
     AMD_FLAGS=(
         --arch=x86_64
         --target-os=mingw32
         --cross-prefix=x86_64-w64-mingw32-
         --enable-nvdec
         --enable-ffnvcodec
-        --enable-hwaccel={h264_nvdec,vp8_nvdec,vp9_nvdec}
+        --enable-hwaccel={h264_nvdec,vp8_nvdec,vp9_nvdec,h264_d3d11va,h264_d3d11va2,vp9_dxva2,vp9_d3d11va,vp9_d3d11va2}
         --enable-cuvid
-        --extra-cflags=-I/usr/local/cuda/include
+        --enable-d3d11va
+        --extra-cflags=-I/usr/lib/cuda/include
         --extra-cflags=-I/usr/include/ffnvcodec
         --extra-ldflags=-L/usr/local/cuda/lib64
         --prefix=/
