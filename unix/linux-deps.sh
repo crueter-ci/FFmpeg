@@ -1,13 +1,17 @@
 #!/bin/sh -ex
 
+# Explicitly disable man-db auto update (takes forever lol)
+sudo rm /var/lib/man-db/auto-update
+
 sudo apt-get update
 sudo apt install build-essential nasm yasm cmake libc6 libc6-dev unzip wget libnuma1 libnuma-dev clang git libffmpeg-nvenc-dev libva-dev libvulkan-dev
 
 if [ "$TARGET" = "windows-amd64" ]; then
-  sudo apt-get install gcc-mingw-w64-x86-64 mingw-w64-tools nvidia-driver-575 nvidia-cuda-toolkit
+  sudo apt-get install gcc-mingw-w64-x86-64 mingw-w64-tools nvidia-driver-580 nvidia-cuda-toolkit
 
   git clone --depth 1 https://github.com/GPUOpen-LibrariesAndSDKs/AMF.git
   cd AMF
+  sudo mkdir -p /usr/include/AMF
   sudo cp -r amf/public/include/* /usr/include/AMF
 fi
 
@@ -22,4 +26,9 @@ if [ "$TARGET" = "windows-arm64" ]; then
 
   echo "$PWD/bin" >> $GITHUB_PATH
   echo "MINGW=$PWD" >> $GITHUB_ENV
+
+  git clone --depth 1 https://github.com/GPUOpen-LibrariesAndSDKs/AMF.git
+  cd AMF
+  sudo mkdir -p /usr/include/AMF
+  sudo cp -r amf/public/include/* /usr/include/AMF
 fi
