@@ -22,6 +22,6 @@ if [ "$TARGET" = "windows-arm64" ]; then
   cd mingw
   tar xf ../$ARTIFACT
 
-  echo "$PWD" >> $GITHUB_PATH
+  echo "$PWD/bin" >> $GITHUB_PATH
   echo "MINGW=$PWD" >> $GITHUB_ENV
 fi

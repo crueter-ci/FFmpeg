@@ -50,8 +50,8 @@ configure() {
         --arch=arm64
         --target-os=mingw32
         --cross-prefix=aarch64-w64-mingw32-
-        --extra-cflags="-I$MINGW/include"
-        --extra-ldflags="-L$MINGW/lib"
+        --extra-cflags="-I$MINGW/aarch64-w64-mingw32/include"
+        --extra-ldflags="-L$MINGW/aarch64-w64-mingw32/lib"
     )
 
     AMD_FLAGS=(

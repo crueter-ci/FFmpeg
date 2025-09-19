@@ -14,6 +14,7 @@ VERSION=${VERSION:-8.0}
 
 ROOTDIR=$PWD
 ARTIFACTS_DIR=$PWD/artifacts
+mkdir -p $ARTIFACTS_DIR
 
 REPO=ffmpeg-kit-16KB
 
