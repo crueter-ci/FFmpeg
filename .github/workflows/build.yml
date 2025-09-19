@@ -1,0 +1,156 @@
+name: CI
+
+on:
+  workflow_call:
+
+jobs:
+  version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.get-version.outputs.VERSION }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Grab SSL Version
+        id: get-version
+        run: echo "VERSION=$(./tools/latest.sh)" >> $GITHUB_OUTPUT
+  
+  windows:
+    needs: [version]
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runs-on: windows-latest
+            arch: amd64
+            msvc_arch: amd64_arm64
+
+          - runs-on: windows-11-arm
+            arch: arm64
+            msvc_arch: amd64_arm64
+
+    env:
+      VERSION: ${{ needs.version.outputs.version }}
+      ARCH: ${{ matrix.arch }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: ${{ matrix.msvc_arch }}
+
+      - name: Install wget
+        run: choco install wget
+
+      # Use for perl
+      # - name: Setup perl
+      #   shell: bash
+      #   run: |
+      #     wget https://github.com/StrawberryPerl/Perl-Dist-Strawberry/releases/download/SP_54021_64bit_UCRT/strawberry-perl-5.40.2.1-64bit-portable.zip
+      #     mkdir strawberry
+      #     cd strawberry
+      #     7z x ../strawberry-perl-5.40.2.1-64bit-portable.zip
+
+      #     #  I hate microsoft
+      #     PERL_PATH="$PWD/perl"
+      #     echo "PERL_BIN=$PERL_PATH/bin" >> $GITHUB_ENV
+      #     echo "PERL5LIB=$PERL_PATH/vendor/lib;$PERL_PATH/lib" >> $GITHUB_ENV
+
+      #     ls $PERL_PATH/lib
+
+      - name: Build
+        shell: bash
+        run: |
+          # export PATH="$PERL_BIN:$PATH"
+          chmod a+x ./windows/build.sh
+          ./windows/build.sh
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-${{ matrix.arch }}
+          path: artifacts/*
+
+  android:
+    needs: [version]
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+    env:
+      VERSION: ${{ needs.version.outputs.version }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build
+        shell: bash
+        run: |
+          chmod a+x ./android/build.sh
+          ./android/build.sh
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: android
+          path: artifacts/*
+
+  unix:
+    needs: [version]
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: solaris
+          - platform: freebsd
+          - platform: linux
+
+    env:
+      PLATFORM: ${{ matrix.platform }}
+      VERSION: ${{ needs.version.outputs.version }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build (Solaris)
+        if: matrix.platform == 'solaris'
+        uses: vmactions/solaris-vm@v1.1.4
+        with:
+          release: "11.4-gcc"
+          usesh: true
+          envs: 'PLATFORM VERSION GITHUB_WORKSPACE'
+          prepare: |
+            pkgutil -y -i wget
+            pkgutil -U -y tar
+
+          run: |
+            chmod a+x ./unix/build.sh
+            ./unix/build.sh
+
+      - name: Build (FreeBSD)
+        if: matrix.platform == 'freebsd'
+        uses: vmactions/freebsd-vm@v1.2.2
+        with:
+          usesh: true
+          envs: 'PLATFORM VERSION GITHUB_WORKSPACE'
+          prepare: |
+            pkg install -y wget bash
+
+          run: |
+            ls unix
+            chmod a+x ./unix/build.sh
+            bash unix/build.sh
+
+      - name: Build (Linux)
+        if: matrix.platform == 'linux'
+        run: |
+          chmod a+x ./unix/build.sh
+          ./unix/build.sh
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.platform }}
+          path: artifacts/*
