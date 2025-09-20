@@ -39,22 +39,22 @@ if (BUILD_SHARED_LIBS)
 else()
     set(FFmpeg_LIBRARY_DIR ${CMAKE_CURRENT_LIST_DIR}/lib PARENT_SCOPE)
     set_target_properties(FFmpeg::swscale PROPERTIES
-        IMPORTED_LOCATION ${FFmpeg_LIBRARY_DIR}/libswscale.dll.a
+        IMPORTED_LOCATION ${FFmpeg_LIBRARY_DIR}/libswscale.a
         INTERFACE_INCLUDE_DIRECTORIES ${FFmpeg_INCLUDE_DIR}
     )
 
     set_target_properties(FFmpeg::avutil PROPERTIES
-        IMPORTED_LOCATION ${FFmpeg_LIBRARY_DIR}/libavutil.dll.a
+        IMPORTED_LOCATION ${FFmpeg_LIBRARY_DIR}/libavutil.a
         INTERFACE_INCLUDE_DIRECTORIES ${FFmpeg_INCLUDE_DIR}
     )
 
     set_target_properties(FFmpeg::avcodec PROPERTIES
-        IMPORTED_LOCATION ${FFmpeg_LIBRARY_DIR}/libavcodec.dll.a
+        IMPORTED_LOCATION ${FFmpeg_LIBRARY_DIR}/libavcodec.a
         INTERFACE_INCLUDE_DIRECTORIES ${FFmpeg_INCLUDE_DIR}
     )
 
     set_target_properties(FFmpeg::avfilter PROPERTIES
-        IMPORTED_LOCATION ${FFmpeg_LIBRARY_DIR}/libavfilter.dll.a
+        IMPORTED_LOCATION ${FFmpeg_LIBRARY_DIR}/libavfilter.a
         INTERFACE_INCLUDE_DIRECTORIES ${FFmpeg_INCLUDE_DIR}
     )
 endif()

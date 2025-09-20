@@ -14,9 +14,7 @@
 REQUIRED_DLLS_NAME=requirements.txt
 
 configure() {
-    echo "Configuring..."
-
-    log_file=$1
+    echo "-- Configuring (SHARED=$SHARED)..."
 
     CONFIGURE_FLAGS=(
         --disable-avdevice
@@ -30,7 +28,6 @@ configure() {
         --disable-swresample
         --disable-vaapi
         --disable-vdpau
-        --enable-shared
         --enable-decoder=h264
         --enable-decoder=vp8
         --enable-decoder=vp9
@@ -42,6 +39,8 @@ configure() {
         --enable-d3d11va
         --prefix=/
     )
+
+    [ "$SHARED" = true ] && CONFIGURE_FLAGS+=(--enable-shared)
 
     if [ "$ARCH" = amd64 ]; then
         CONFIGURE_FLAGS+=(
@@ -66,23 +65,23 @@ configure() {
         )
         fi
 
-    echo "Package config path: $PKG_CONFIG_PATH"
-    echo "Configure flags: ${CONFIGURE_FLAGS[@]}"
+    echo "-- Package config path: $PKG_CONFIG_PATH"
+    echo "-- Configure flags: ${CONFIGURE_FLAGS[@]}"
 
     ./configure \
         "${CONFIGURE_FLAGS[@]}"
 }
 
 build() {
-    log_file=$1
-
-    echo "Building..."
+    echo "-- Building (SHARED=$SHARED)..."
     export CL=" /MP"
 
     make -j$(nproc)
 }
 
 strip_libs() {
+    echo "-- Stripping DLLs..."
+
     if [ "$ARCH" = arm64 ]; then
         find . -name "*.dll" -exec aarch64-w64-mingw32-strip {} \;
     elif [ "$ARCH" = amd64 ]; then
@@ -91,7 +90,7 @@ strip_libs() {
 }
 
 copy_build_artifacts() {
-    echo "Copying artifacts..."
+    echo "-- Copying artifacts (SHARED=$SHARED)..."
     mkdir -p $OUT_DIR
 
     make install DESTDIR=${OUT_DIR}
@@ -99,6 +98,8 @@ copy_build_artifacts() {
 }
 
 copy_cmake() {
+    echo "-- Copying CMake artifacts..."
+
     cp $ROOTDIR/CMakeLists.txt "$OUT_DIR"
 
     cp $ROOTDIR/windows/ffmpeg.cmake "$OUT_DIR"
@@ -118,7 +119,7 @@ copy_cmake() {
 }
 
 package() {
-    echo "Packaging..."
+    echo "-- Packaging..."
     mkdir -p "$ROOTDIR/artifacts"
 
     TARBALL=$FILENAME-windows-$ARCH-$VERSION.tar
@@ -141,7 +142,7 @@ ROOTDIR=$PWD
 mkdir -p "$BUILD_DIR"
 pushd "$BUILD_DIR"
 
-echo "Extracting $PRETTY_NAME $VERSION"
+echo "-- Extracting $PRETTY_NAME $VERSION"
 rm -fr $DIRECTORY
 tar xf "$ROOTDIR/$ARTIFACT"
 
@@ -155,25 +156,29 @@ AVFILTER_VER=$(grep '#define LIBAVFILTER_VERSION_MAJOR' libavfilter/version_majo
 
 REQUIRED_DLLS="avcodec-${AVCODEC_VER}.dll;avutil-${AVUTIL_VER}.dll;libwinpthread-1.dll;swscale-${SWSCALE_VER}.dll;avfilter-${AVFILTER_VER}.dll"
 
-log_file="build_${ARCH}_${VERSION}.log"
-configure ${log_file}
-
 # Delete existing build artifacts
 rm -fr "$OUT_DIR"
 mkdir -p "$OUT_DIR" || exit 1
 
-build ${log_file}
+# Shared
+export SHARED=true
+
+configure
+build
 strip_libs
 copy_build_artifacts
 
-if [ ! -d "$OUT_DIR/include" ]; then
-    cp -a include "$OUT_DIR/" || exit 1
-fi
+# Static
+export SHARED=false
+
+configure
+build
+copy_build_artifacts
 
 copy_cmake
 package
 
-echo "Done! Artifacts are in $ROOTDIR/artifacts, raw lib/include data is in $OUT_DIR"
+echo "-- Done! Artifacts are in $ROOTDIR/artifacts, raw lib/include data is in $OUT_DIR"
 
 popd
 popd
