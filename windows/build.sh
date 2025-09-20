@@ -1,26 +1,26 @@
 #!/bin/bash -e
 
-set -e
+# Native compilation with msys2 (msvc sux)
 
-export PKG_CONFIG_PATH=/usr/lib/pkgconfig/
+[ -z "$VERSION" ] && export VERSION=8.0
 
 . tools/common.sh || exit 1
 
 [ -z "$OUT_DIR" ] && OUT_DIR=$PWD/out
 
-[ -z "$VERSION" ] && VERSION=8.0
 [ -z "$ARCH" ] && ARCH=amd64
 [ -z "$BUILD_DIR" ] && BUILD_DIR=build
 
 REQUIRED_DLLS_NAME=requirements.txt
+
+. ./windows/deps.sh
 
 configure() {
     echo "Configuring..."
 
     log_file=$1
 
-    BASE_FLAGS=(
-        --enable-cross-compile
+    CONFIGURE_FLAGS=(
         --disable-avdevice
         --disable-avformat
         --disable-doc
@@ -39,43 +39,40 @@ configure() {
         --enable-vulkan
         --enable-avfilter
         --enable-filter=yadif,scale
-        --extra-cflags=-I/usr/include/vulkan
-        --extra-cflags=-I/usr/include/AMF
-        --enable-hwaccel={h264_dxva2,h264_vulkan,vp9_vulkan}
+        --enable-hwaccel={h264_dxva2,h264_vulkan,vp9_vulkan,h264_d3d11va,h264_d3d11va2,vp9_dxva2,vp9_d3d11va,vp9_d3d11va2}
+        --enable-dxva2
+        --enable-d3d11va
         --prefix=/
     )
 
-    # TODO(crueter): fix dxva_h issue
-    if [ "$TARGET" = "windows-amd64" ]; then
-        BASE_FLAGS+=(
+    if [ "$ARCH" = amd64 ]; then
+        CONFIGURE_FLAGS+=(
             --arch=x86_64
-            --target-os=mingw32
-            --cross-prefix=x86_64-w64-mingw32-
-            --enable-nvdec
-            --enable-ffnvcodec
-            --enable-hwaccel={h264_nvdec,vp8_nvdec,vp9_nvdec,h264_d3d11va,h264_d3d11va2,vp9_dxva2,vp9_d3d11va,vp9_d3d11va2}
+            --enable-hwaccel={h264_nvdec,vp8_nvdec,vp9_nvdec}
             --enable-cuvid
-            --enable-dxva2
-            --enable-d3d11va
-            --extra-cflags=-I/usr/lib/cuda/include
-            --extra-cflags=-I/usr/include/ffnvcodec
-            --extra-ldflags=-L/usr/lib/x86_64-linux-gnu/stubs
+            --enable-ffnvcodec
+            --enable-nvdec
         )
-    else
-        export PKG_CONFIG_PATH="$MINGW/aarch64-w64-mingw32/lib/pkgconfig"
-        BASE_FLAGS+=(
+    elif [ "$ARCH" = arm64 ]; then
+        # needed for cross-comp stuff
+        export PATH="/opt/bin:$PATH"
+        export PKG_CONFIG_PATH="/clangarm64/lib/pkgconfig/:$PKG_CONFIG_PATH"
+
+        CONFIGURE_FLAGS+=(
             --arch=arm64
             --target-os=mingw32
+            --enable-cross-compile
             --cross-prefix=aarch64-w64-mingw32-
-            --extra-cflags="-I$MINGW/aarch64-w64-mingw32/include"
-            --extra-ldflags="-L$MINGW/aarch64-w64-mingw32/lib"
+            --extra-cflags="-I/clangarm64/include"
+            --extra-ldflags="-L/clangarm64/bin"
         )
-    fi
+        fi
 
-    echo "Architecture flags: $BASE_FLAGS"
+    echo "Package config path: $PKG_CONFIG_PATH"
+    echo "Configure flags: ${CONFIGURE_FLAGS[@]}"
 
     ./configure \
-        "${BASE_FLAGS[@]}"
+        "${CONFIGURE_FLAGS[@]}"
 }
 
 build() {
@@ -88,7 +85,11 @@ build() {
 }
 
 strip_libs() {
-    find . -name "*.dll" -exec x86_64-w64-mingw32-strip {} \;
+    if [ "$ARCH" = arm64 ]; then
+        find . -name "*.dll" -exec aarch64-w64-mingw32-strip {} \;
+    elif [ "$ARCH" = amd64 ]; then
+        find . -name "*.dll" -exec strip {} \;
+    fi
 }
 
 copy_build_artifacts() {
@@ -110,7 +111,11 @@ copy_cmake() {
     sed -i "s/AVFILTER_VER/$AVFILTER_VER/" "$OUT_DIR/ffmpeg.cmake"
 
     echo -n ${REQUIRED_DLLS} > ${OUT_DIR}/${REQUIRED_DLLS_NAME}
-    cp $(find /usr/x86_64-w64-mingw32/ | grep libwinpthread-1.dll | head -n 1) ${OUT_DIR}/bin || true
+    if [ "$ARCH" = amd64 ]; then
+        cp $(find C:/msys64/mingw64 -name libwinpthread-1.dll) ${OUT_DIR}/bin
+    elif [ "$ARCH" = arm64 ]; then
+        cp $(find C:/msys64/opt/aarch64-w64-mingw32 -name libwinpthread-1.dll) ${OUT_DIR}/bin
+    fi
 }
 
 package() {
@@ -133,15 +138,17 @@ ROOTDIR=$PWD
 
 ./tools/download.sh
 
-[[ -e "$BUILD_DIR" ]] && rm -fr "$BUILD_DIR"
+# [[ -e "$BUILD_DIR" ]] && rm -fr "$BUILD_DIR"
 mkdir -p "$BUILD_DIR"
 pushd "$BUILD_DIR"
 
 echo "Extracting $PRETTY_NAME $VERSION"
-rm -fr $DIRECTORY
-tar xf "$ROOTDIR/$ARTIFACT"
+# rm -fr $DIRECTORY
+# tar xf "$ROOTDIR/$ARTIFACT"
 
-mv "$DIRECTORY" "$FILENAME-$VERSION-$ARCH"
+# exit 0
+
+# mv "$DIRECTORY" "$FILENAME-$VERSION-$ARCH"
 pushd "$FILENAME-$VERSION-$ARCH"
 
 AVCODEC_VER=$(grep '#define LIBAVCODEC_VERSION_MAJOR' libavcodec/version_major.h | sed 's/.* //g')
