@@ -8,7 +8,7 @@
 [ -z "$PLATFORM" ] && PLATFORM=linux
 
 [ "$PLATFORM" = "solaris" ] && MAKE=gmake || MAKE=make
-[ "$PLATFORM" != amd64 ] && PLATFORM=$PLATFORM-$ARCH
+[ "$ARCH" != amd64 ] && PLATFORM=$PLATFORM-$ARCH
 
 configure() {
     log_file=$1
