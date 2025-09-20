@@ -74,6 +74,7 @@ jobs:
   unix:
     name: "${{ matrix.platform }} ${{ matrix.arch }}"
     runs-on: ${{ matrix.runs-on }}
+    container: ghcr.io/pkgforge-dev/archlinux:latest
     strategy:
       fail-fast: false
       matrix:
