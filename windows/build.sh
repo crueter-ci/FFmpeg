@@ -138,17 +138,15 @@ ROOTDIR=$PWD
 
 ./tools/download.sh
 
-# [[ -e "$BUILD_DIR" ]] && rm -fr "$BUILD_DIR"
+[[ -e "$BUILD_DIR" ]] && rm -fr "$BUILD_DIR"
 mkdir -p "$BUILD_DIR"
 pushd "$BUILD_DIR"
 
 echo "Extracting $PRETTY_NAME $VERSION"
-# rm -fr $DIRECTORY
-# tar xf "$ROOTDIR/$ARTIFACT"
+rm -fr $DIRECTORY
+tar xf "$ROOTDIR/$ARTIFACT"
 
-# exit 0
-
-# mv "$DIRECTORY" "$FILENAME-$VERSION-$ARCH"
+mv "$DIRECTORY" "$FILENAME-$VERSION-$ARCH"
 pushd "$FILENAME-$VERSION-$ARCH"
 
 AVCODEC_VER=$(grep '#define LIBAVCODEC_VERSION_MAJOR' libavcodec/version_major.h | sed 's/.* //g')
