@@ -14,15 +14,11 @@ configure() {
     log_file=$1
 
     FFmpeg_HWACCEL_FLAGS=(
-        --enable-hwaccel=h264_vaapi
-        --enable-hwaccel=vp8_vaapi
-        --enable-hwaccel=vp9_vaapi
         --enable-cuvid
         --enable-ffnvcodec
         --enable-nvdec
-        --enable-hwaccel=h264_nvdec
-        --enable-hwaccel=vp8_nvdec
-        --enable-hwaccel=vp9_nvdec
+        --enable-vulkan
+        --enable-hwaccel={h264_nvdec,vp8_nvdec,vp9_nvdec,h264_vaapi,vp8_vaapi,vp9_vaapi,h264_vulkan,vp9_vulkan}
     )
 
     # Configure here (e.g. cmake or the like)
@@ -55,7 +51,6 @@ build() {
 }
 
 strip_libs() {
-    # Change to match your library's names
     find . -name "lib*.so" -exec strip {} \;
 }
 
