@@ -5,30 +5,3 @@ sudo rm /var/lib/man-db/auto-update
 
 sudo apt-get update
 sudo apt install build-essential nasm yasm cmake libc6 libc6-dev unzip wget libnuma1 libnuma-dev clang git libffmpeg-nvenc-dev libva-dev libvulkan-dev
-
-if [ "$TARGET" = "windows-amd64" ]; then
-  sudo apt-get install gcc-mingw-w64-x86-64 mingw-w64-tools nvidia-driver-580 nvidia-cuda-toolkit
-
-  git clone --depth 1 https://github.com/GPUOpen-LibrariesAndSDKs/AMF.git
-  cd AMF
-  sudo mkdir -p /usr/include/AMF
-  sudo cp -r amf/public/include/* /usr/include/AMF
-fi
-
-if [ "$TARGET" = "windows-arm64" ]; then
-  sudo apt-get install gcc-mingw-w64-x86-64 mingw-w64-tools
-  ARTIFACT=aarch64-w64-mingw32-msvcrt-toolchain.tar.gz
-  wget https://github.com/Windows-on-ARM-Experiments/mingw-woarm64-build/releases/download/2025-07-15/$ARTIFACT
-
-  mkdir -p mingw
-  cd mingw
-  tar xf ../$ARTIFACT
-
-  echo "$PWD/bin" >> $GITHUB_PATH
-  echo "MINGW=$PWD" >> $GITHUB_ENV
-
-  git clone --depth 1 https://github.com/GPUOpen-LibrariesAndSDKs/AMF.git
-  cd AMF
-  sudo mkdir -p /usr/include/AMF
-  sudo cp -r amf/public/include/* /usr/include/AMF
-fi

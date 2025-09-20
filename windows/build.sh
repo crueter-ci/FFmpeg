@@ -13,8 +13,6 @@
 
 REQUIRED_DLLS_NAME=requirements.txt
 
-. ./windows/deps.sh
-
 configure() {
     echo "Configuring..."
 
@@ -111,10 +109,11 @@ copy_cmake() {
     sed -i "s/AVFILTER_VER/$AVFILTER_VER/" "$OUT_DIR/ffmpeg.cmake"
 
     echo -n ${REQUIRED_DLLS} > ${OUT_DIR}/${REQUIRED_DLLS_NAME}
+
     if [ "$ARCH" = amd64 ]; then
-        cp $(find C:/msys64/mingw64 -name libwinpthread-1.dll) ${OUT_DIR}/bin
+        cp /mingw64/bin/libwinpthread-1.dll ${OUT_DIR}/bin
     elif [ "$ARCH" = arm64 ]; then
-        cp $(find C:/msys64/opt/aarch64-w64-mingw32 -name libwinpthread-1.dll) ${OUT_DIR}/bin
+        cp /opt/aarch64-w64-mingw32/bin/libwinpthread-1.dll ${OUT_DIR}/bin
     fi
 }
 

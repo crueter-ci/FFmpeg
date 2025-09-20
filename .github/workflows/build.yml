@@ -24,6 +24,12 @@ jobs:
         with:
           msystem: mingw64
 
+      - name: Get Dependencies
+        shell: msys2 {0}
+        run: |
+          chmod a+x ./windows/deps.sh
+          ./windows/deps.sh
+
       - name: Build
         shell: msys2 {0}
         run: |
