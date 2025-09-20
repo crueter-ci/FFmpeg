@@ -1,6 +1,6 @@
 #!/bin/sh -ex
 
-sudo pacman -Syu --needed --noconfirm \
+pacman -Syu --needed --noconfirm \
     nasm \
     yasm \
     cmake \
