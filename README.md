@@ -1,6 +1,6 @@
 # FFmpeg CI
 
-Template for scripts and CI for CMake-compatible FFmpeg on Windows (amd64, arm64), UNIX (amd64, Linux) and Android (aarch64).
+Template for scripts and CI for CMake-compatible FFmpeg on Windows (amd64, arm64), UNIX (amd64, Linux) and Android (aarch64). Note that this is purpose-built for Eden, containing only h264, VP8, and VP9 decoders.
 
 [**Releases**](https://github.com/crueter-ci/FFmpeg/releases)
 
@@ -35,6 +35,8 @@ endif()
 ```
 
 You may additionally specify a `URL_HASH` with sha1, sha256, or sha512. Downloads containing the file's sums are included in each release and can be fetched programmatically.
+
+To link your project to FFmpeg, simply link to the `FFmpeg::FFmpeg` INTERFACE target.
 
 ## Building
 

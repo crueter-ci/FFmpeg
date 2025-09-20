@@ -7,8 +7,8 @@
 [ -z "$BUILD_DIR" ] && BUILD_DIR=build
 [ -z "$PLATFORM" ] && PLATFORM=linux
 
-[ "$PLATFORM" == "solaris" ] && MAKE=gmake || MAKE=make
-PLATFORM=$PLATFORM-$ARCH
+[ "$PLATFORM" = "solaris" ] && MAKE=gmake || MAKE=make
+[ "$PLATFORM" != amd64 ] && PLATFORM=$PLATFORM-$ARCH
 
 configure() {
     log_file=$1

@@ -31,7 +31,7 @@ echo "| ----- | ------- | --------- | --------- |"
 artifact Android android
 artifact "Windows (amd64)" windows-amd64
 artifact "Windows (arm64)" windows-arm64
-artifact "Linux (amd64)" linux-amd64
+artifact "Linux (amd64)" linux
 artifact "Linux (aarch64)" linux-aarch64
 # artifact Solaris solaris
 # artifact FreeBSD freebsd

@@ -63,10 +63,14 @@ export PATH="$ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH"
 find . -name "*.so" -exec llvm-strip --strip-all {} \;
 
 cp $ROOTDIR/CMakeLists.txt "$OUT_DIR"
-cp $ROOTDIR/unix/ffmpeg.cmake "$OUT_DIR"
+cp $ROOTDIR/android/ffmpeg.cmake "$OUT_DIR"
 
 TARBALL=$ARTIFACTS_DIR/ffmpeg-android-$VERSION.tar
-tar cf $TARBALL $OUT_DIR
+
+cd $OUT_DIR
+rm -rf share lib/pkgconfig
+
+tar cf $TARBALL *
 
 zstd -10 $TARBALL
 rm $TARBALL
