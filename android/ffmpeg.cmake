@@ -10,8 +10,8 @@ else()
 endif()
 
 # utility lib that links to everything
-add_library(FFmpeg::FFmpeg INTERFACE)
-set_target_properties(FFmpeg::FFmpeg PROPERTIES
+add_library(ffmpeg INTERFACE)
+set_target_properties(ffmpeg PROPERTIES
     INTERFACE_INCLUDE_DIRECTORIES ${FFMPEG_INCLUDE_DIR}
 )
 
@@ -23,7 +23,7 @@ foreach (LIB avcodec avdevice avfilter avformat avutil postproc swresample swsca
         INTERFACE_INCLUDE_DIRECTORIES ${FFMPEG_INCLUDE_DIR}
     )
     add_library(FFmpeg::${LIB} ALIAS ${LIB})
-    target_link_libraries(FFmpeg::FFmpeg PUBLIC FFmpeg::${LIB})
+    target_link_libraries(ffmpeg PUBLIC FFmpeg::${LIB})
 endforeach()
 
 # always-static
@@ -34,5 +34,7 @@ foreach(LIB vpx x264)
         INTERFACE_INCLUDE_DIRECTORIES ${FFMPEG_INCLUDE_DIR}
     )
     add_library(FFmpeg::${LIB} ALIAS ${LIB})
-    target_link_libraries(FFmpeg::FFmpeg PUBLIC FFmpeg::${LIB})
+    target_link_libraries(ffmpeg PUBLIC FFmpeg::${LIB})
 endforeach()
+
+add_library(FFmpeg::FFmpeg ALIAS ffmpeg)

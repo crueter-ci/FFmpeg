@@ -1,8 +1,8 @@
 set(FFMPEG_INCLUDE_DIR ${CMAKE_CURRENT_LIST_DIR}/include)
 
 # utility lib that links to everything
-add_library(FFmpeg::FFmpeg INTERFACE)
-set_target_properties(FFmpeg::FFmpeg PROPERTIES
+add_library(ffmpeg INTERFACE)
+set_target_properties(ffmpeg PROPERTIES
     INTERFACE_INCLUDE_DIRECTORIES ${FFMPEG_INCLUDE_DIR}
 )
 
@@ -71,9 +71,11 @@ add_library(FFmpeg::avutil   ALIAS avutil)
 add_library(FFmpeg::avcodec  ALIAS avcodec)
 add_library(FFmpeg::avfilter ALIAS avfilter)
 
-target_link_libraries(FFmpeg::FFmpeg PUBLIC
+target_link_libraries(ffmpeg PUBLIC
     FFmpeg::swscale
     FFmpeg::avutil
     FFmpeg::avcodec
     FFmpeg::avfilter
 )
+
+add_library(FFmpeg::FFmpeg ALIAS ffmpeg)
