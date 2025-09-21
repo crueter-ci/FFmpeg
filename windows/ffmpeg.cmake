@@ -71,7 +71,7 @@ add_library(FFmpeg::avutil   ALIAS avutil)
 add_library(FFmpeg::avcodec  ALIAS avcodec)
 add_library(FFmpeg::avfilter ALIAS avfilter)
 
-target_link_libraries(ffmpeg PUBLIC
+target_link_libraries(ffmpeg INTERFACE
     FFmpeg::swscale
     FFmpeg::avutil
     FFmpeg::avcodec

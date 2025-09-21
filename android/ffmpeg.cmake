@@ -23,7 +23,7 @@ foreach (LIB avcodec avdevice avfilter avformat avutil postproc swresample swsca
         INTERFACE_INCLUDE_DIRECTORIES ${FFMPEG_INCLUDE_DIR}
     )
     add_library(FFmpeg::${LIB} ALIAS ${LIB})
-    target_link_libraries(ffmpeg PUBLIC FFmpeg::${LIB})
+    target_link_libraries(ffmpeg INTERFACE FFmpeg::${LIB})
 endforeach()
 
 # always-static
@@ -34,7 +34,7 @@ foreach(LIB vpx x264)
         INTERFACE_INCLUDE_DIRECTORIES ${FFMPEG_INCLUDE_DIR}
     )
     add_library(FFmpeg::${LIB} ALIAS ${LIB})
-    target_link_libraries(ffmpeg PUBLIC FFmpeg::${LIB})
+    target_link_libraries(ffmpeg INTERFACE FFmpeg::${LIB})
 endforeach()
 
 add_library(FFmpeg::FFmpeg ALIAS ffmpeg)
