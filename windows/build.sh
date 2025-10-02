@@ -95,6 +95,15 @@ copy_build_artifacts() {
 
     make install DESTDIR=${OUT_DIR}
     rm -rf $OUT_DIR/{share,lib/pkgconfig}
+
+	push $OUT_DIR/bin
+
+    mv swscale-*.dll swscale.dll
+    mv avutil-*.dll avutil.dll
+    mv avcodec-*.dll avcodec.dll
+    mv avfilter-*.dll avfilter.dll
+
+	popd
 }
 
 copy_cmake() {
@@ -103,13 +112,6 @@ copy_cmake() {
     cp $ROOTDIR/CMakeLists.txt "$OUT_DIR"
 
     cp $ROOTDIR/windows/ffmpeg.cmake "$OUT_DIR"
-
-    sed -i "s/AVCODEC_VER/$AVCODEC_VER/" "$OUT_DIR/ffmpeg.cmake"
-    sed -i "s/AVUTIL_VER/$AVUTIL_VER/" "$OUT_DIR/ffmpeg.cmake"
-    sed -i "s/SWSCALE_VER/$SWSCALE_VER/" "$OUT_DIR/ffmpeg.cmake"
-    sed -i "s/AVFILTER_VER/$AVFILTER_VER/" "$OUT_DIR/ffmpeg.cmake"
-
-    echo -n ${REQUIRED_DLLS} > ${OUT_DIR}/${REQUIRED_DLLS_NAME}
 
     if [ "$ARCH" = amd64 ]; then
         cp /mingw64/bin/libwinpthread-1.dll ${OUT_DIR}/bin

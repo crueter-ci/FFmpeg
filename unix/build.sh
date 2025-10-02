@@ -8,7 +8,6 @@
 [ -z "$PLATFORM" ] && PLATFORM=linux
 
 [ "$PLATFORM" = "solaris" ] && MAKE=gmake || MAKE=make
-[ "$ARCH" != amd64 ] && PLATFORM=$PLATFORM-$ARCH
 
 configure() {
     log_file=$1
@@ -72,7 +71,7 @@ package() {
     echo "Packaging..."
     mkdir -p "$ROOTDIR/artifacts"
 
-    TARBALL=$FILENAME-$PLATFORM-$VERSION.tar
+    TARBALL=$FILENAME-$PLATFORM-$ARCH-$VERSION.tar
 
     cd "$OUT_DIR"
     tar cf $ROOTDIR/artifacts/$TARBALL *

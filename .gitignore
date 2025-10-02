@@ -3,3 +3,4 @@ out
 artifacts
 /*.tar.gz
 changelog.md
+/ffmpeg-kit*
