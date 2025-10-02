@@ -111,6 +111,7 @@ copy_cmake() {
 
     cp $ROOTDIR/CMakeLists.txt "$OUT_DIR"
 
+	# left here for compat
     cp $ROOTDIR/windows/ffmpeg.cmake "$OUT_DIR"
 
     if [ "$ARCH" = amd64 ]; then

@@ -1,0 +1,29 @@
+set(FFMPEG_INCLUDE_DIR ${CMAKE_CURRENT_LIST_DIR}/include)
+set(FFMPEG_LIB_DIR ${CMAKE_CURRENT_LIST_DIR}/lib)
+
+if (BUILD_SHARED_LIBS)
+    set(LIB_TYPE SHARED)
+    set(LIB_SUFFIX so)
+else()
+    set(LIB_TYPE SHARED)
+    set(LIB_SUFFIX a)
+endif()
+
+# utility lib that links to everything
+add_library(ffmpeg INTERFACE)
+set_target_properties(ffmpeg PROPERTIES
+    INTERFACE_INCLUDE_DIRECTORIES ${FFMPEG_INCLUDE_DIR}
+)
+
+# conditional libs
+foreach (LIB swscale avutil avcodec avfilter)
+    add_library(${LIB} ${LIB_TYPE} IMPORTED GLOBAL)
+    set_target_properties(${LIB} PROPERTIES
+        IMPORTED_LOCATION ${FFMPEG_LIB_DIR}/lib${LIB}.${LIB_SUFFIX}
+        INTERFACE_INCLUDE_DIRECTORIES ${FFMPEG_INCLUDE_DIR}
+    )
+    add_library(FFmpeg::${LIB} ALIAS ${LIB})
+    target_link_libraries(ffmpeg INTERFACE FFmpeg::${LIB})
+endforeach()
+
+add_library(FFmpeg::FFmpeg ALIAS ffmpeg)

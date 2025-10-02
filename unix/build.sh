@@ -64,6 +64,7 @@ copy_build_artifacts() {
 copy_cmake() {
     cp $ROOTDIR/CMakeLists.txt "$OUT_DIR"
 
+	# left here for compat
     cp $ROOTDIR/unix/ffmpeg.cmake "$OUT_DIR"
 }
 
