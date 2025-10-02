@@ -96,14 +96,16 @@ copy_build_artifacts() {
     make install DESTDIR=${OUT_DIR}
     rm -rf $OUT_DIR/{share,lib/pkgconfig}
 
-	pushd $OUT_DIR/bin
+	if [ "$SHARED" = true]
+		pushd $OUT_DIR/bin
 
-    mv swscale-*.dll swscale.dll
-    mv avutil-*.dll avutil.dll
-    mv avcodec-*.dll avcodec.dll
-    mv avfilter-*.dll avfilter.dll
+		mv swscale-*.dll swscale.dll
+		mv avutil-*.dll avutil.dll
+		mv avcodec-*.dll avcodec.dll
+		mv avfilter-*.dll avfilter.dll
 
-	popd
+		popd
+	fi
 }
 
 copy_cmake() {
