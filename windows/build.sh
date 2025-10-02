@@ -96,7 +96,7 @@ copy_build_artifacts() {
     make install DESTDIR=${OUT_DIR}
     rm -rf $OUT_DIR/{share,lib/pkgconfig}
 
-	if [ "$SHARED" = true]
+	if [ "$SHARED" = true ]; then
 		pushd $OUT_DIR/bin
 
 		mv swscale-*.dll swscale.dll
