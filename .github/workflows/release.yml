@@ -1,8 +1,6 @@
 name: Release
 
 on:
-  schedule:
-    - cron: "0 0 * * 1"
   push:
     branches: [ "master" ]
   workflow_dispatch:
@@ -27,13 +25,13 @@ jobs:
       - name: Get Version
         run: echo "VERSION=$(./tools/latest.sh)" >> $GITHUB_ENV
 
-      - name: Delete Previous Release
-        run: |
-          gh release delete "v${{ env.VERSION }}" --repo "${{ github.repository }}" --cleanup-tag -y
-          sleep 5
-        env:
-          GH_TOKEN: "${{ github.token }}"
-        continue-on-error: true
+      # - name: Delete Previous Release
+      #   run: |
+      #     gh release delete "v${{ env.VERSION }}" --repo "${{ github.repository }}" --cleanup-tag -y
+      #     sleep 5
+      #   env:
+      #     GH_TOKEN: "${{ github.token }}"
+      #   continue-on-error: true
 
       - name: Generate Changelog
         run: |
