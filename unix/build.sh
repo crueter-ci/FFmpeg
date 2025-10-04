@@ -98,7 +98,7 @@ tar xf "$ROOTDIR/$ARTIFACT"
 mv "$DIRECTORY" "$FILENAME-$VERSION-$ARCH"
 pushd "$FILENAME-$VERSION-$ARCH"
 
-"$ROOTDIR"/tools/libvers.sh
+. "$ROOTDIR"/tools/libvers.sh
 
 configure
 

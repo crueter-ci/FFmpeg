@@ -94,8 +94,13 @@ else() # Unix
         add_library(${LIB} ${LIB_TYPE} IMPORTED GLOBAL)
         set_target_properties(${LIB} PROPERTIES
             INTERFACE_INCLUDE_DIRECTORIES ${FFMPEG_INCLUDE_DIR}
-            IMPORTED_LOCATION ${FFMPEG_LIB_DIR}/lib${LIB}.${LIB_SUFFIX}
         )
+
+        if (UNIX)
+            set_target_properties(${LIB} PROPERTIES
+                IMPORTED_LOCATION ${FFMPEG_LIB_DIR}/lib${LIB}.${LIB_SUFFIX}
+            )
+        endif()
 
         add_library(FFmpeg::${LIB} ALIAS ${LIB})
         target_link_libraries(ffmpeg INTERFACE FFmpeg::${LIB})

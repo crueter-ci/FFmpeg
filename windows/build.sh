@@ -156,7 +156,7 @@ tar xf "$ROOTDIR/$ARTIFACT"
 mv "$DIRECTORY" "$FILENAME-$VERSION-$ARCH"
 pushd "$FILENAME-$VERSION-$ARCH"
 
-"$ROOTDIR"/tools/libvers.sh
+. "$ROOTDIR"/tools/libvers.sh
 
 REQUIRED_DLLS="avcodec-${AVCODEC_VER}.dll;avutil-${AVUTIL_VER}.dll;libwinpthread-1.dll;swscale-${SWSCALE_VER}.dll;avfilter-${AVFILTER_VER}.dll"
 
