@@ -11,7 +11,7 @@
 [ "$PLATFORM" = "solaris" ] && MAKE="gmake" || MAKE="make"
 
 configure() {
-    log_file=$1
+	echo "-- Configuring..."
 
     FFmpeg_HWACCEL_FLAGS=(
         --enable-cuvid
@@ -42,12 +42,9 @@ configure() {
 }
 
 build() {
-    log_file=$1
+    echo "-- Building..."
 
-    echo "Building..."
-
-    $MAKE -j$(nproc) 2>&1 1>>${log_file} \
-        | tee -a ${log_file} || exit 1
+    $MAKE -j"$(nproc)"
 }
 
 strip_libs() {
@@ -55,18 +52,18 @@ strip_libs() {
 }
 
 copy_build_artifacts() {
-    echo "Copying artifacts..."
-    mkdir -p $OUT_DIR
+    echo "-- Copying artifacts..."
+    mkdir -p "$OUT_DIR"
 
-    $MAKE install DESTDIR=$OUT_DIR
+    $MAKE install DESTDIR="$OUT_DIR"
     rm -rf "$OUT_DIR/lib/pkgconfig"
 }
 
 copy_cmake() {
-    cp $ROOTDIR/CMakeLists.txt "$OUT_DIR"
+    cp "$ROOTDIR"/CMakeLists.txt "$OUT_DIR"
 
 	# left here for compat
-    cp $ROOTDIR/unix/ffmpeg.cmake "$OUT_DIR"
+    cp "$ROOTDIR"/unix/ffmpeg.cmake "$OUT_DIR"
 }
 
 package() {
@@ -76,25 +73,26 @@ package() {
     TARBALL=$FILENAME-$PLATFORM-$ARCH-$VERSION.tar
 
     cd "$OUT_DIR"
-    tar cf $ROOTDIR/artifacts/$TARBALL *
+    tar cf "$ROOTDIR/artifacts/$TARBALL" ./*
 
     cd "$ROOTDIR/artifacts"
-    zstd -10 $TARBALL
-    rm $TARBALL
+    zstd -10 "$TARBALL"
+    rm "$TARBALL"
 
-    $ROOTDIR/tools/sums.sh $TARBALL.zst
+    "$ROOTDIR"/tools/sums.sh "$TARBALL".zst
 }
 
 ROOTDIR=$PWD
+export ROOTDIR
 
 ./tools/download.sh
 
-[[ -e "$BUILD_DIR" ]] && rm -fr "$BUILD_DIR"
+[ -e "$BUILD_DIR" ] && rm -fr "$BUILD_DIR"
 mkdir -p "$BUILD_DIR"
 pushd "$BUILD_DIR"
 
 echo "Extracting $PRETTY_NAME $VERSION"
-rm -fr $DIRECTORY
+rm -fr "$DIRECTORY"
 tar xf "$ROOTDIR/$ARTIFACT"
 
 mv "$DIRECTORY" "$FILENAME-$VERSION-$ARCH"
@@ -102,14 +100,13 @@ pushd "$FILENAME-$VERSION-$ARCH"
 
 "$ROOTDIR"/tools/libvers.sh
 
-log_file="build_${ARCH}_${VERSION}.log"
-configure ${log_file}
+configure
 
 # Delete existing build artifacts
 rm -fr "$OUT_DIR"
 mkdir -p "$OUT_DIR" || exit 1
 
-build ${log_file}
+build
 strip_libs
 copy_build_artifacts
 

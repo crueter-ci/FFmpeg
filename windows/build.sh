@@ -141,6 +141,7 @@ package() {
 }
 
 ROOTDIR=$PWD
+export ROOTDIR
 
 ./tools/download.sh
 
