@@ -1,5 +1,6 @@
 #!/bin/bash -e
 
+# shellcheck disable=SC1091
 . tools/common.sh || exit 1
 
 [ -z "$OUT_DIR" ] && OUT_DIR=$PWD/out
@@ -7,7 +8,7 @@
 [ -z "$BUILD_DIR" ] && BUILD_DIR=build
 [ -z "$PLATFORM" ] && PLATFORM=linux
 
-[ "$PLATFORM" = "solaris" ] && MAKE=gmake || MAKE=make
+[ "$PLATFORM" = "solaris" ] && MAKE="gmake" || MAKE="make"
 
 configure() {
     log_file=$1
@@ -98,6 +99,8 @@ tar xf "$ROOTDIR/$ARTIFACT"
 
 mv "$DIRECTORY" "$FILENAME-$VERSION-$ARCH"
 pushd "$FILENAME-$VERSION-$ARCH"
+
+"$ROOTDIR"/tools/libvers.sh
 
 log_file="build_${ARCH}_${VERSION}.log"
 configure ${log_file}

@@ -4,9 +4,10 @@
 
 [ -z "$VERSION" ] && export VERSION=8.0
 
+# shellcheck disable=SC1091
 . tools/common.sh || exit 1
 
-[ -z "$OUT_DIR" ] && OUT_DIR=$PWD/out
+[ -z "$OUT_DIR" ] && OUT_DIR="$PWD/out"
 
 [ -z "$ARCH" ] && ARCH=amd64
 [ -z "$BUILD_DIR" ] && BUILD_DIR=build
@@ -16,6 +17,7 @@ REQUIRED_DLLS_NAME=requirements.txt
 configure() {
     echo "-- Configuring (SHARED=$SHARED)..."
 
+    # shellcheck disable=SC2054
     CONFIGURE_FLAGS=(
         --disable-avdevice
         --disable-avformat
@@ -66,6 +68,7 @@ configure() {
         fi
 
     echo "-- Package config path: $PKG_CONFIG_PATH"
+    # shellcheck disable=SC2145
     echo "-- Configure flags: ${CONFIGURE_FLAGS[@]}"
 
     ./configure \
@@ -76,7 +79,7 @@ build() {
     echo "-- Building (SHARED=$SHARED)..."
     export CL=" /MP"
 
-    make -j$(nproc)
+    make -j"$(nproc)"
 }
 
 strip_libs() {
@@ -91,18 +94,13 @@ strip_libs() {
 
 copy_build_artifacts() {
     echo "-- Copying artifacts (SHARED=$SHARED)..."
-    mkdir -p $OUT_DIR
+    mkdir -p "$OUT_DIR"
 
-    make install DESTDIR=${OUT_DIR}
-    rm -rf $OUT_DIR/{share,lib/pkgconfig}
+    make install DESTDIR="${OUT_DIR}"
+    rm -rf "$OUT_DIR"/{share,lib/pkgconfig}
 
 	if [ "$SHARED" = true ]; then
-		pushd $OUT_DIR/bin
-
-		mv swscale-*.dll swscale.dll
-		mv avutil-*.dll avutil.dll
-		mv avcodec-*.dll avcodec.dll
-		mv avfilter-*.dll avfilter.dll
+		pushd "$OUT_DIR"/bin
 
 		popd
 	fi
@@ -111,17 +109,17 @@ copy_build_artifacts() {
 copy_cmake() {
     echo "-- Copying CMake artifacts..."
 
-    cp $ROOTDIR/CMakeLists.txt "$OUT_DIR"
+    cp "$ROOTDIR"/CMakeLists.txt "$OUT_DIR"
 
 	# left here for compat
-    cp $ROOTDIR/windows/ffmpeg.cmake "$OUT_DIR"
+    cp "$ROOTDIR"/windows/ffmpeg.cmake "$OUT_DIR"
 
-	echo -n ${REQUIRED_DLLS} > ${OUT_DIR}/${REQUIRED_DLLS_NAME}
+	echo -n "${REQUIRED_DLLS}" > "${OUT_DIR}"/${REQUIRED_DLLS_NAME}
 
     if [ "$ARCH" = amd64 ]; then
-        cp /mingw64/bin/libwinpthread-1.dll ${OUT_DIR}/bin
+        cp /mingw64/bin/libwinpthread-1.dll "$OUT_DIR"/bin
     elif [ "$ARCH" = arm64 ]; then
-        cp /opt/aarch64-w64-mingw32/bin/libwinpthread-1.dll ${OUT_DIR}/bin
+        cp /opt/aarch64-w64-mingw32/bin/libwinpthread-1.dll "$OUT_DIR"/bin
     fi
 }
 
@@ -132,13 +130,14 @@ package() {
     TARBALL=$FILENAME-windows-$ARCH-$VERSION.tar
 
     cd "$OUT_DIR"
-    tar cf $ROOTDIR/artifacts/$TARBALL *
+    # shellcheck disable=SC2035
+    tar cf "$ROOTDIR/artifacts/$TARBALL" *
 
     cd "$ROOTDIR/artifacts"
-    zstd -10 $TARBALL
-    rm $TARBALL
+    zstd -10 "$TARBALL"
+    rm "$TARBALL"
 
-    $ROOTDIR/tools/sums.sh $TARBALL.zst
+    "$ROOTDIR/tools/sums.sh" "$TARBALL".zst
 }
 
 ROOTDIR=$PWD
@@ -150,18 +149,15 @@ mkdir -p "$BUILD_DIR"
 pushd "$BUILD_DIR"
 
 echo "-- Extracting $PRETTY_NAME $VERSION"
-rm -fr $DIRECTORY
+rm -fr "$DIRECTORY"
 tar xf "$ROOTDIR/$ARTIFACT"
 
 mv "$DIRECTORY" "$FILENAME-$VERSION-$ARCH"
 pushd "$FILENAME-$VERSION-$ARCH"
 
-AVCODEC_VER=$(grep '#define LIBAVCODEC_VERSION_MAJOR' libavcodec/version_major.h | sed 's/.* //g')
-AVUTIL_VER=$(grep '#define LIBAVUTIL_VERSION_MAJOR' libavutil/version.h | sed 's/.* //g')
-SWSCALE_VER=$(grep '#define LIBSWSCALE_VERSION_MAJOR' libswscale/version_major.h | sed 's/.* //g')
-AVFILTER_VER=$(grep '#define LIBAVFILTER_VERSION_MAJOR' libavfilter/version_major.h | sed 's/.* //g')
+"$ROOTDIR"/tools/libvers.sh
 
-REQUIRED_DLLS="avcodec.dll;avutil.dll;libwinpthread-1.dll;swscale.dll;avfilter.dll"
+REQUIRED_DLLS="avcodec-${AVCODEC_VER}.dll;avutil-${AVUTIL_VER}.dll;libwinpthread-1.dll;swscale-${SWSCALE_VER}.dll;avfilter-${AVFILTER_VER}.dll"
 
 # Delete existing build artifacts
 rm -fr "$OUT_DIR"
