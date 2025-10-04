@@ -116,6 +116,8 @@ copy_cmake() {
 	# left here for compat
     cp $ROOTDIR/windows/ffmpeg.cmake "$OUT_DIR"
 
+	echo -n ${REQUIRED_DLLS} > ${OUT_DIR}/${REQUIRED_DLLS_NAME}
+
     if [ "$ARCH" = amd64 ]; then
         cp /mingw64/bin/libwinpthread-1.dll ${OUT_DIR}/bin
     elif [ "$ARCH" = arm64 ]; then
