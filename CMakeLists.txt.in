@@ -65,6 +65,8 @@ elseif(WIN32)
                 IMPORTED_LOCATION ${FFMPEG_LIB_DIR}/lib${LIB}.a
             )
         endif()
+
+        target_link_libraries(${LIB} INTERFACE bcrypt)
     endforeach()
 
     if (BUILD_SHARED_LIBS)
