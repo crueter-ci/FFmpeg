@@ -51,7 +51,7 @@ if (ANDROID)
         target_link_libraries(ffmpeg INTERFACE FFmpeg::${LIB})
     endforeach()
 elseif(WIN32)
-    foreach (LIB swscale avutil avcodec avfilter)
+    foreach (LIB swscale avcodec avfilter avutil)
         add_library(${LIB} ${LIB_TYPE} IMPORTED GLOBAL)
         add_library(FFmpeg::${LIB} ALIAS ${LIB})
         target_link_libraries(ffmpeg INTERFACE FFmpeg::${LIB})
@@ -90,7 +90,7 @@ elseif(WIN32)
         )
     endif()
 else() # Unix
-    foreach (LIB swscale avutil avcodec avfilter)
+    foreach (LIB swscale avcodec avfilter avutil)
         add_library(${LIB} ${LIB_TYPE} IMPORTED GLOBAL)
         set_target_properties(${LIB} PROPERTIES
             INTERFACE_INCLUDE_DIRECTORIES ${FFMPEG_INCLUDE_DIR}
