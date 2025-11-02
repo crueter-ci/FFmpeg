@@ -9,14 +9,16 @@ env:
 jobs:
   windows:
     name: "Windows ${{ matrix.arch }}"
-    runs-on: windows-latest
+    runs-on: ${{ matrix.runs-on }}
     strategy:
       fail-fast: false
       matrix:
         include:
-          - arch: amd64
+          - runs-on: windows-latest
+            arch: amd64
             msystem: mingw64
-          - arch: arm64
+          - runs-on: windows-11-arm
+            arch: arm64
             msystem: clangarm64
 
     env:

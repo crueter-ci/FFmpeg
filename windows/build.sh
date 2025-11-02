@@ -16,9 +16,6 @@ REQUIRED_DLLS_NAME=requirements.txt
 
 export PATH="/$MSYSTEM/bin:$PATH"
 
-/$MSYSTEM/bin/clang.exe --version
-clang --version
-
 configure() {
     echo "-- Configuring (SHARED=$SHARED)..."
 
