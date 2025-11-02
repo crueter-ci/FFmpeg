@@ -5,10 +5,10 @@ AVUTIL_VER=$(grep '#define LIBAVUTIL_VERSION_MAJOR' libavutil/version.h | sed 's
 SWSCALE_VER=$(grep '#define LIBSWSCALE_VERSION_MAJOR' libswscale/version_major.h | sed 's/.* //g')
 AVFILTER_VER=$(grep '#define LIBAVFILTER_VERSION_MAJOR' libavfilter/version_major.h | sed 's/.* //g')
 
-echo $AVCODEC_VER
-echo $AVUTIL_VER
-echo $AVFILTER_VER
-echo $SWSCALE_VER
+echo "$AVCODEC_VER"
+echo "$AVUTIL_VER"
+echo "$AVFILTER_VER"
+echo "$SWSCALE_VER"
 
 sed "s/AVCODEC_VER/$AVCODEC_VER/"   "$ROOTDIR"/CMakeLists.txt.in   > "$ROOTDIR"/CMakeLists.txt.in.1
 sed "s/AVUTIL_VER/$AVUTIL_VER/"     "$ROOTDIR"/CMakeLists.txt.in.1 > "$ROOTDIR"/CMakeLists.txt.in.2
