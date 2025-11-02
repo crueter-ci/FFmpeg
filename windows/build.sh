@@ -123,7 +123,7 @@ package() {
     # mingw fake
     NEWTAR=$FILENAME-mingw-$ARCH-$VERSION.tar.zst
     cp "$TARBALL".zst "$NEWTAR"
-    "$ROOTDIR"/tools/sums.sh "$NEWTAR".zst
+    "$ROOTDIR"/tools/sums.sh "$NEWTAR"
 }
 
 ROOTDIR=$PWD
