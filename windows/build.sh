@@ -53,7 +53,8 @@ configure() {
         )
     elif [ "$ARCH" = arm64 ]; then
         CONFIGURE_FLAGS+=(
-            --toolchain=clang
+            --cc=clang
+            --cxx=clang++
         )
     fi
 
