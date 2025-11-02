@@ -14,7 +14,7 @@ VERSION=${VERSION:-8.0}
 
 ROOTDIR=$PWD
 ARTIFACTS_DIR=$PWD/artifacts
-mkdir -p $ARTIFACTS_DIR
+mkdir -p "$ARTIFACTS_DIR"
 
 REPO=ffmpeg-kit-16KB
 
@@ -56,27 +56,27 @@ echo "-- Building..."
 
 echo "-- Packaging..."
 
-rm -rf $OUT_DIR
-mkdir -p $OUT_DIR
+rm -rf "$OUT_DIR"
+mkdir -p "$OUT_DIR"
 
-cp -r prebuilt/android-arm64/{ffmpeg,libvpx,x264}/* $OUT_DIR/
+cp -r prebuilt/android-arm64/{ffmpeg,libvpx,x264}/* "$OUT_DIR"
 
 export PATH="$ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH"
 find . -name "*.so" -exec llvm-strip --strip-all {} \;
 
-cp $ROOTDIR/CMakeLists.txt "$OUT_DIR"
+cp "$ROOTDIR/CMakeLists.txt" "$OUT_DIR"
 
 # left here for compat
-cp $ROOTDIR/android/ffmpeg.cmake "$OUT_DIR"
+cp "$ROOTDIR/android/ffmpeg.cmake" "$OUT_DIR"
 
 TARBALL=$ARTIFACTS_DIR/ffmpeg-android-$VERSION.tar
 
-cd $OUT_DIR
+cd "$OUT_DIR"
 rm -rf share lib/pkgconfig
 
-tar cf $TARBALL *
+tar cf "$TARBALL" ./*
 
-zstd -10 $TARBALL
-rm $TARBALL
+zstd -10 "$TARBALL"
+rm "$TARBALL"
 
-$ROOTDIR/tools/sums.sh $TARBALL.zst
+"$ROOTDIR"/tools/sums.sh "$TARBALL".zst

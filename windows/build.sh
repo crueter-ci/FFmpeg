@@ -53,23 +53,13 @@ configure() {
             --enable-nvdec
         )
     elif [ "$ARCH" = arm64 ]; then
-        # needed for cross-comp stuff
-        export PATH="/opt/bin:$PATH"
-        export PKG_CONFIG_PATH="/clangarm64/lib/pkgconfig/:$PKG_CONFIG_PATH"
-
         CONFIGURE_FLAGS+=(
             --arch=arm64
-            --target-os=mingw32
-            --enable-cross-compile
-            --cross-prefix=aarch64-w64-mingw32-
-            --extra-cflags="-I/clangarm64/include"
-            --extra-ldflags="-L/clangarm64/bin"
         )
-        fi
+    fi
 
     echo "-- Package config path: $PKG_CONFIG_PATH"
-    # shellcheck disable=SC2145
-    echo "-- Configure flags: ${CONFIGURE_FLAGS[@]}"
+    echo "-- Configure flags: ${CONFIGURE_FLAGS[*]}"
 
     ./configure \
         "${CONFIGURE_FLAGS[@]}"
@@ -85,11 +75,7 @@ build() {
 strip_libs() {
     echo "-- Stripping DLLs..."
 
-    if [ "$ARCH" = arm64 ]; then
-        find . -name "*.dll" -exec aarch64-w64-mingw32-strip {} \;
-    elif [ "$ARCH" = amd64 ]; then
-        find . -name "*.dll" -exec strip {} \;
-    fi
+    find . -name "*.dll" -exec strip {} \;
 }
 
 copy_build_artifacts() {
@@ -116,11 +102,7 @@ copy_cmake() {
 
 	echo -n "${REQUIRED_DLLS}" > "${OUT_DIR}"/${REQUIRED_DLLS_NAME}
 
-    if [ "$ARCH" = amd64 ]; then
-        cp /mingw64/bin/libwinpthread-1.dll "$OUT_DIR"/bin
-    elif [ "$ARCH" = arm64 ]; then
-        cp /opt/aarch64-w64-mingw32/bin/libwinpthread-1.dll "$OUT_DIR"/bin
-    fi
+    cp "/$MSYSTEM/bin/libwinpthread-1.dll" "$OUT_DIR"/bin
 }
 
 package() {
@@ -137,7 +119,12 @@ package() {
     zstd -10 "$TARBALL"
     rm "$TARBALL"
 
-    "$ROOTDIR/tools/sums.sh" "$TARBALL".zst
+    "$ROOTDIR"/tools/sums.sh "$TARBALL".zst
+
+    # mingw fake
+    NEWTAR=$FILENAME-mingw-$ARCH-$VERSION.tar.zst
+    cp "$TARBALL".zst "$NEWTAR"
+    "$ROOTDIR"/tools/sums.sh "$NEWTAR".zst
 }
 
 ROOTDIR=$PWD
@@ -147,15 +134,16 @@ export ROOTDIR
 
 [[ -e "$BUILD_DIR" ]] && rm -fr "$BUILD_DIR"
 mkdir -p "$BUILD_DIR"
-pushd "$BUILD_DIR"
+cd "$BUILD_DIR"
 
 echo "-- Extracting $PRETTY_NAME $VERSION"
 rm -fr "$DIRECTORY"
 tar xf "$ROOTDIR/$ARTIFACT"
 
 mv "$DIRECTORY" "$FILENAME-$VERSION-$ARCH"
-pushd "$FILENAME-$VERSION-$ARCH"
+cd "$FILENAME-$VERSION-$ARCH"
 
+# shellcheck disable=SC1091
 . "$ROOTDIR"/tools/libvers.sh
 
 REQUIRED_DLLS="avcodec-${AVCODEC_VER}.dll;avutil-${AVUTIL_VER}.dll;libwinpthread-1.dll;swscale-${SWSCALE_VER}.dll;avfilter-${AVFILTER_VER}.dll"
@@ -183,6 +171,3 @@ copy_cmake
 package
 
 echo "-- Done! Artifacts are in $ROOTDIR/artifacts, raw lib/include data is in $OUT_DIR"
-
-popd
-popd
