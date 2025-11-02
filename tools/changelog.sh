@@ -18,10 +18,10 @@ artifact() {
 
     COL1="[$NAME]($BASE_URL)"
 
-    printf '| %1 |' "$COL1"
+    printf '| %s |' "$COL1"
     for sum in 1 256 512; do
         DOWNLOAD="[Download]($BASE_URL.sha${sum}sum)"
-        printf " %1 |" "$DOWNLOAD" 
+        printf " %s |" "$DOWNLOAD" 
     done
     echo
 }

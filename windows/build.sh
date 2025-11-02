@@ -1,5 +1,7 @@
 #!/bin/bash -e
 
+gcc --version
+
 # Native compilation with msys2 (msvc sux)
 
 [ -z "$VERSION" ] && export VERSION=8.0
@@ -46,15 +48,10 @@ configure() {
 
     if [ "$ARCH" = amd64 ]; then
         CONFIGURE_FLAGS+=(
-            --arch=x86_64
             --enable-hwaccel={h264_nvdec,vp8_nvdec,vp9_nvdec}
             --enable-cuvid
             --enable-ffnvcodec
             --enable-nvdec
-        )
-    elif [ "$ARCH" = arm64 ]; then
-        CONFIGURE_FLAGS+=(
-            --arch=arm64
         )
     fi
 
