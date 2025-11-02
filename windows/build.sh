@@ -60,6 +60,8 @@ configure() {
             --cxx=clang++
             --enable-cross-compile
             --cross-prefix=aarch64-w64-wingw32
+            --target-os=mingw32
+            --arch=arm64
         )
     fi
 
