@@ -14,6 +14,8 @@
 
 REQUIRED_DLLS_NAME=requirements.txt
 
+export PATH="/$MSYSTEM/bin:$PATH"
+
 configure() {
     echo "-- Configuring (SHARED=$SHARED)..."
 
@@ -58,10 +60,6 @@ configure() {
         CONFIGURE_FLAGS+=(
             --cc=clang
             --cxx=clang++
-            --enable-cross-compile
-            --cross-prefix=aarch64-w64-wingw32
-            --target-os=mingw32
-            --arch=arm64
         )
     fi
 
