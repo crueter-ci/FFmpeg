@@ -1,7 +1,5 @@
 #!/bin/bash -e
 
-gcc --version
-
 # Native compilation with msys2 (msvc sux)
 
 [ -z "$VERSION" ] && export VERSION=8.0
@@ -53,6 +51,10 @@ configure() {
             --enable-ffnvcodec
             --enable-nvdec
         )
+    elif [ "$ARCH" = arm64 ]; then
+        CONFIGURE_FLAGS+=(
+            --toolchain=clang
+        )
     fi
 
     echo "-- Package config path: $PKG_CONFIG_PATH"
@@ -81,12 +83,6 @@ copy_build_artifacts() {
 
     make install DESTDIR="${OUT_DIR}"
     rm -rf "$OUT_DIR"/{share,lib/pkgconfig}
-
-	if [ "$SHARED" = true ]; then
-		pushd "$OUT_DIR"/bin
-
-		popd
-	fi
 }
 
 copy_cmake() {
