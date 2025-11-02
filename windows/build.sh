@@ -152,6 +152,8 @@ REQUIRED_DLLS="avcodec-${AVCODEC_VER}.dll;avutil-${AVUTIL_VER}.dll;libwinpthread
 rm -fr "$OUT_DIR"
 mkdir -p "$OUT_DIR" || exit 1
 
+export PATH="/$MSYSTEM/bin:$PATH"
+
 # Shared
 export SHARED=true
 
