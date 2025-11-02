@@ -52,9 +52,14 @@ configure() {
             --enable-nvdec
         )
     elif [ "$ARCH" = arm64 ]; then
+        # ffmpeg is TERRIBLE
+        # Anyone who uses configure scripts should be ashamed
+        # JUST USE CMAKE! IT MAKES EVERYONE'S LIVES EASIER!
         CONFIGURE_FLAGS+=(
             --cc=clang
             --cxx=clang++
+            --enable-cross-compile
+            --cross-prefix=aarch64-w64-wingw32
         )
     fi
 
