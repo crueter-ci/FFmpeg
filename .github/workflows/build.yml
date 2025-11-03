@@ -32,7 +32,6 @@ jobs:
 
       - name: Setup MSVC
         uses: ilammy/msvc-dev-cmd@v1
-        if: matrix.toolchain == 'msvc'
         with:
           arch: ${{ matrix.os.arch }}
 
@@ -47,15 +46,14 @@ jobs:
             toolchain:p vulkan-devel:p pkg-config:p nasm:p
             nasm:p ffnvcodec-headers:p
 
-      - name: Build
+      - name: Remove MSYS2 link on MSVC
         if: matrix.toolchain == 'msvc'
-        shell: bash
+        shell: msys2 {0}
         run: |
-          chmod a+x ./windows/build.sh
-          ./windows/build.sh
+          rm $(which link)
+          rm -rf /usr/local
 
       - name: Build
-        if: matrix.toolchain == 'msys'
         shell: msys2 {0}
         run: |
           chmod a+x ./windows/build.sh
