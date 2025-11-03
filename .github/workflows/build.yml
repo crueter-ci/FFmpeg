@@ -37,6 +37,7 @@ jobs:
           arch: ${{ matrix.os.arch }}
 
       - uses: msys2/setup-msys2@v2
+        if: matrix.toolchain == 'msys'
         with:
           msystem: ${{ matrix.os.msystem }}
           update: true
