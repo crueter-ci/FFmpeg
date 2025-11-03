@@ -10,7 +10,7 @@ VULKAN_SDK=C:/VulkanSDK/$VULKAN_VER
 FFNVCODEC_VER=n13.0.19.0
 
 [ ! -f vulkan.exe ] && curl -L https://sdk.lunarg.com/sdk/download/$VULKAN_VER/windows/vulkan-sdk-windowxX64-$VULKAN_VER.exe -o vulkan.exe
-./vulkan.exe --headless --root "$VULKAN_SDK" --accept-licenses --default-answer --confirm-command 
+./vulkan.exe --root "$VULKAN_SDK" --accept-licenses --default-answer --confirm-command install
 
 export VULKAN_SDK
 
