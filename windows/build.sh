@@ -1,26 +1,65 @@
 #!/bin/bash -e
 
-# Native compilation with msys2 (msvc sux)
+: "${TOOLCHAIN:=msvc}"
+: "${VERSION:=8.0}"
+: "${OUT_DIR:="$PWD/out"}"
+: "${ARCH:=amd64}"
+: "${BUILD_DIR:=build}"
 
-[ -z "$VERSION" ] && export VERSION=8.0
+ROOTDIR="$PWD"
+export ROOTDIR
+
+export VERSION
+
+msvc() {
+	[ "$TOOLCHAIN" = msvc ]
+}
+
+msys() {
+	! msvc
+}
+
+if msvc; then
+ 	# shellcheck disable=SC2154
+	# gets cl.exe and link.exe into the PATH
+	CLPATH=$(cygpath -u "$VCToolsInstallDir\\bin\\Host${VSCMD_ARG_HOST_ARCH}\\${VSCMD_ARG_TGT_ARCH}")
+ 	export PATH="$CLPATH:$PATH"
+	echo "$CLPATH"
+	ls "$CLPATH"
+	cl.exe
+fi
+
+msvc && PLATFORM=windows || PLATFORM=mingw
 
 # shellcheck disable=SC1091
 . tools/common.sh || exit 1
 
-[ -z "$OUT_DIR" ] && OUT_DIR="$PWD/out"
-
-[ -z "$ARCH" ] && ARCH=amd64
-[ -z "$BUILD_DIR" ] && BUILD_DIR=build
+# shellcheck disable=SC1091
+msvc && . windows/prepare.sh
 
 REQUIRED_DLLS_NAME=requirements.txt
 
-export PATH="/$MSYSTEM/bin:$PATH"
+msys && export PATH="/$MSYSTEM/bin:$PATH"
 
 configure() {
     echo "-- Configuring (SHARED=$SHARED)..."
 
+	msvc && [ "$ARCH" = amd64 ] && export PKG_CONFIG_PATH="$FFNVCODEC_DIR/lib/pkgconfig:$PKG_CONFIG_PATH"
+    echo "-- Package config path: $PKG_CONFIG_PATH"
+
+	msvc && [ "$ARCH" = amd64 ] && pkg-config --cflags ffnvcodec
+
+	if msvc; then
+		CONFIGURE_FLAGS+=(
+			--toolchain=msvc
+			--arch="$ARCH"
+			--target-os=win64
+			--extra-cflags="-I\"$VULKAN_SDK/include\""
+		)
+	fi
+
     # shellcheck disable=SC2054
-    CONFIGURE_FLAGS=(
+    CONFIGURE_FLAGS+=(
         --disable-avdevice
         --disable-avformat
         --disable-doc
@@ -44,7 +83,7 @@ configure() {
         --prefix=/
     )
 
-    [ "$SHARED" = true ] && CONFIGURE_FLAGS+=(--enable-shared)
+    [ "$SHARED" = true ] && CONFIGURE_FLAGS+=(--disable-static --enable-shared) || CONFIGURE_FLAGS+=(--disable-shared --enable-static)
 
     if [ "$ARCH" = amd64 ]; then
         CONFIGURE_FLAGS+=(
@@ -53,7 +92,9 @@ configure() {
             --enable-ffnvcodec
             --enable-nvdec
         )
-    elif [ "$ARCH" = arm64 ]; then
+
+		msvc && CONFIGURE_FLAGS+=(--extra-cflags="-I\"$FFNVCODEC_DIR/include\"")
+    elif msys && [ "$ARCH" = arm64 ]; then
         # ffmpeg is TERRIBLE
         # Anyone who uses configure scripts should be ashamed
         # JUST USE CMAKE! IT MAKES EVERYONE'S LIVES EASIER!
@@ -63,7 +104,6 @@ configure() {
         )
     fi
 
-    echo "-- Package config path: $PKG_CONFIG_PATH"
     echo "-- Configure flags: ${CONFIGURE_FLAGS[*]}"
 
     ./configure \
@@ -101,14 +141,14 @@ copy_cmake() {
 
 	echo -n "${REQUIRED_DLLS}" > "${OUT_DIR}"/${REQUIRED_DLLS_NAME}
 
-    cp "/$MSYSTEM/bin/libwinpthread-1.dll" "$OUT_DIR"/bin
+    msys && cp "/$MSYSTEM/bin/libwinpthread-1.dll" "$OUT_DIR"/bin || true
 }
 
 package() {
     echo "-- Packaging..."
     mkdir -p "$ROOTDIR/artifacts"
 
-    TARBALL=$FILENAME-windows-$ARCH-$VERSION.tar
+    TARBALL=$FILENAME-$PLATFORM-$ARCH-$VERSION.tar
 
     cd "$OUT_DIR"
     # shellcheck disable=SC2035
@@ -119,19 +159,11 @@ package() {
     rm "$TARBALL"
 
     "$ROOTDIR"/tools/sums.sh "$TARBALL".zst
-
-    # mingw fake
-    NEWTAR=$FILENAME-mingw-$ARCH-$VERSION.tar.zst
-    cp "$TARBALL".zst "$NEWTAR"
-    "$ROOTDIR"/tools/sums.sh "$NEWTAR"
 }
-
-ROOTDIR=$PWD
-export ROOTDIR
 
 ./tools/download.sh
 
-[[ -e "$BUILD_DIR" ]] && rm -fr "$BUILD_DIR"
+[ -e "$BUILD_DIR" ] && rm -fr "$BUILD_DIR"
 mkdir -p "$BUILD_DIR"
 cd "$BUILD_DIR"
 
@@ -150,8 +182,6 @@ REQUIRED_DLLS="avcodec-${AVCODEC_VER}.dll;avutil-${AVUTIL_VER}.dll;libwinpthread
 # Delete existing build artifacts
 rm -fr "$OUT_DIR"
 mkdir -p "$OUT_DIR" || exit 1
-
-export PATH="/$MSYSTEM/bin:$PATH"
 
 # Shared
 export SHARED=true
