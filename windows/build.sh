@@ -106,7 +106,6 @@ build() {
 
     NPROC=$(nproc 2>/dev/null || echo 4)
 	make -j"$NPROC"
-	build/config.log
 }
 
 strip_libs() {
