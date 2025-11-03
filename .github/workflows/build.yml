@@ -29,6 +29,13 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: Setup MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+        if: matrix.toolchain == 'msvc'
+        with:
+          arch: arm64
+
       - uses: msys2/setup-msys2@v2
         with:
           msystem: ${{ matrix.os.msystem }}
