@@ -48,6 +48,14 @@ jobs:
             nasm:p ffnvcodec-headers:p
 
       - name: Build
+        if: matrix.toolchain == 'msvc'
+        shell: bash
+        run: |
+          chmod a+x ./windows/build.sh
+          ./windows/build.sh
+
+      - name: Build
+        if: matrix.toolchain == 'msys'
         shell: msys2 {0}
         run: |
           chmod a+x ./windows/build.sh
