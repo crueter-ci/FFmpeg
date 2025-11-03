@@ -40,6 +40,7 @@ configure() {
 
 	if msvc; then
 		CONFIGURE_FLAGS+=(
+			--toolchain=msvc
 			--extra-cflags="-I$VULKAN_SDK/include -I$FFNVCODEC_SDK/include"
 			--extra-ldflags="-L$FFNVCODEC_SDK/lib"
 		)
