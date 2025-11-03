@@ -47,11 +47,9 @@ if ! command -v nasm 2>/dev/null; then
 	rm -rf nasm*
 fi
 
-if [ "$ARCH" = arm64 ]; then
-	echo "-- Installing gas-preprocessor..."
+echo "-- Installing gas-preprocessor..."
 
-	if ! command -v gas-preprocessor 2>/dev/null; then
-		mkdir -p /usr/local/bin
-		curl -L https://github.com/libav/gas-preprocessor/raw/refs/heads/master/gas-preprocessor.pl -o /usr/local/bin/gas-preprocessor
-	fi
+if ! command -v gas-preprocessor 2>/dev/null; then
+	mkdir -p /usr/local/bin
+	curl -L https://github.com/libav/gas-preprocessor/raw/refs/heads/master/gas-preprocessor.pl -o /usr/local/bin/gas-preprocessor
 fi
