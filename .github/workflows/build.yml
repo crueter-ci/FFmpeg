@@ -64,8 +64,8 @@ jobs:
         shell: bash
         run: |
           echo [Debug]
-          cat ffbuild/config.log
-          cat ffbuild/config.mak
+          cat build/config.log
+          cat build/config.mak
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
