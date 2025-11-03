@@ -1,23 +1,44 @@
 #!/bin/bash -e
 
-# Native compilation with msys2 (msvc sux)
+: "${TOOLCHAIN:=msvc}"
+: "${VERSION:=8.0}"
+: "${OUT_DIR:="$PWD/out"}"
+: "${ARCH:=amd64}"
+: "${BUILD_DIR:=build}"
 
-[ -z "$VERSION" ] && export VERSION=8.0
+msvc() {
+	[ "$TOOLCHAIN" = msvc ]
+}
+
+msys() {
+	! msvc
+}
+
+msvc && PLATFORM=windows || PLATFORM=mingw
 
 # shellcheck disable=SC1091
 . tools/common.sh || exit 1
 
-[ -z "$OUT_DIR" ] && OUT_DIR="$PWD/out"
-
-[ -z "$ARCH" ] && ARCH=amd64
-[ -z "$BUILD_DIR" ] && BUILD_DIR=build
+# shellcheck disable=SC1091
+msvc && . windows/prepare.sh
 
 REQUIRED_DLLS_NAME=requirements.txt
 
-export PATH="/$MSYSTEM/bin:$PATH"
+msys && export PATH="/$MSYSTEM/bin:$PATH"
 
 configure() {
     echo "-- Configuring (SHARED=$SHARED)..."
+
+	msvc && export PKG_CONFIG_PATH="/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH"
+
+	if msvc; then
+		CONFIGURE_FLAGS+=(
+			--toolchain=msvc
+			--arch="$ARCH"
+			--target-os=win64
+			--extra-cflags="-I$VULKAN_SDK/include"
+		)
+	fi
 
     # shellcheck disable=SC2054
     CONFIGURE_FLAGS=(
@@ -108,7 +129,7 @@ package() {
     echo "-- Packaging..."
     mkdir -p "$ROOTDIR/artifacts"
 
-    TARBALL=$FILENAME-windows-$ARCH-$VERSION.tar
+    TARBALL=$FILENAME-$PLATFORM-$ARCH-$VERSION.tar
 
     cd "$OUT_DIR"
     # shellcheck disable=SC2035
@@ -119,11 +140,6 @@ package() {
     rm "$TARBALL"
 
     "$ROOTDIR"/tools/sums.sh "$TARBALL".zst
-
-    # mingw fake
-    NEWTAR=$FILENAME-mingw-$ARCH-$VERSION.tar.zst
-    cp "$TARBALL".zst "$NEWTAR"
-    "$ROOTDIR"/tools/sums.sh "$NEWTAR"
 }
 
 ROOTDIR=$PWD
@@ -131,15 +147,15 @@ export ROOTDIR
 
 ./tools/download.sh
 
-[[ -e "$BUILD_DIR" ]] && rm -fr "$BUILD_DIR"
+# [ -e "$BUILD_DIR" ] && rm -fr "$BUILD_DIR"
 mkdir -p "$BUILD_DIR"
 cd "$BUILD_DIR"
 
 echo "-- Extracting $PRETTY_NAME $VERSION"
-rm -fr "$DIRECTORY"
-tar xf "$ROOTDIR/$ARTIFACT"
+# rm -fr "$DIRECTORY"
+# tar xf "$ROOTDIR/$ARTIFACT"
 
-mv "$DIRECTORY" "$FILENAME-$VERSION-$ARCH"
+# mv "$DIRECTORY" "$FILENAME-$VERSION-$ARCH"
 cd "$FILENAME-$VERSION-$ARCH"
 
 # shellcheck disable=SC1091

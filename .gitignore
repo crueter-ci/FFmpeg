@@ -4,3 +4,6 @@ artifacts
 /*.tar.gz
 changelog.md
 /ffmpeg-kit*
+
+*.exe
+nv-codec-headers
