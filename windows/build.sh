@@ -19,8 +19,10 @@ msys() {
 if msvc; then
  	# shellcheck disable=SC2154
 	# gets cl.exe and link.exe into the PATH
- 	export PATH="$VCToolsInstallDir/bin/Host${VSCMD_ARG_HOST_ARCH}/${VSCMD_ARG_TGT_ARCH}:$PATH"
-	echo "$VCToolsInstallDir/bin/Host${VSCMD_ARG_HOST_ARCH}/${VSCMD_ARG_TGT_ARCH}"
+	CLPATH=$(cygpath -u "$VCToolsInstallDir\\bin\\Host${VSCMD_ARG_HOST_ARCH}\\${VSCMD_ARG_TGT_ARCH}")
+ 	export PATH="$CLPATH:$PATH"
+	echo "$CLPATH"
+	ls "$CLPATH"
 	cl.exe --version
 fi
 
