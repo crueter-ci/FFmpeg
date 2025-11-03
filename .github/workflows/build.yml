@@ -8,12 +8,12 @@ env:
 
 jobs:
   windows:
-    name: "Windows ${{ matrix.toolchain }} ${{ matrix.arch }}"
-    runs-on: ${{ matrix.runs-on }}
+    name: "Windows ${{ matrix.toolchain }} ${{ matrix.os.arch }}"
+    runs-on: ${{ matrix.os.runs-on }}
     strategy:
       fail-fast: false
       matrix:
-        include:
+        os:
           - runs-on: windows-latest
             arch: amd64
             msystem: mingw64
@@ -21,18 +21,17 @@ jobs:
           - runs-on: windows-11-arm
             arch: arm64
             msystem: clangarm64
-        
         toolchain: [msvc, msys]
 
     env:
-      ARCH: ${{ matrix.arch }}
+      ARCH: ${{ matrix.os.arch }}
       TOOLCHAIN: ${{ matrix.toolchain }}
 
     steps:
       - uses: actions/checkout@v4
       - uses: msys2/setup-msys2@v2
         with:
-          msystem: ${{ matrix.msystem }}
+          msystem: ${{ matrix.os.msystem }}
           update: true
           install: >-
             git make unzip pkgconf diffutils
@@ -49,7 +48,7 @@ jobs:
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.toolchain }}-${{ matrix.arch }}
+          name: ${{ matrix.toolchain }}-${{ matrix.os.arch }}
           path: artifacts/*
 
   android:
