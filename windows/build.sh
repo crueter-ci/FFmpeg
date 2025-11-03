@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/bin/bash -ex
 
 : "${TOOLCHAIN:=msvc}"
 : "${VERSION:=8.0}"
