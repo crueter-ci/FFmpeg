@@ -51,7 +51,7 @@ echo "-- Installing gas-preprocessor..."
 
 if ! command -v gas-preprocessor 2>/dev/null; then
 	mkdir -p /usr/local/bin
-	curl -L https://github.com/FFmpeg/gas-preprocessor/blob/master/gas-preprocessor.pl -o gas-preprocessor.pl
+	curl -L https://github.com/FFmpeg/gas-preprocessor/raw/refs/heads/master/gas-preprocessor.pl -o gas-preprocessor.pl
 
 	# FUCK
 	cp gas-preprocessor.pl /usr/local/bin
