@@ -6,6 +6,9 @@
 : "${ARCH:=amd64}"
 : "${BUILD_DIR:=build}"
 
+ROOTDIR="$PWD"
+export ROOTDIR
+
 export VERSION
 
 msvc() {
@@ -138,7 +141,7 @@ copy_cmake() {
 
 	echo -n "${REQUIRED_DLLS}" > "${OUT_DIR}"/${REQUIRED_DLLS_NAME}
 
-    msys && cp "/$MSYSTEM/bin/libwinpthread-1.dll" "$OUT_DIR"/bin
+    msys && cp "/$MSYSTEM/bin/libwinpthread-1.dll" "$OUT_DIR"/bin || true
 }
 
 package() {
@@ -157,9 +160,6 @@ package() {
 
     "$ROOTDIR"/tools/sums.sh "$TARBALL".zst
 }
-
-ROOTDIR=$PWD
-export ROOTDIR
 
 ./tools/download.sh
 
