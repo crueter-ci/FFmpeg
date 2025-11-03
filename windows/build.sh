@@ -33,8 +33,6 @@ configure() {
 
 	if msvc; then
 		CONFIGURE_FLAGS+=(
-			--arch="$ARCH"
-			--target-os=win64
 			--extra-cflags="-I$VULKAN_SDK/include"
 		)
 	fi
