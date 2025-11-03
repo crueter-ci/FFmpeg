@@ -8,7 +8,7 @@ env:
 
 jobs:
   windows:
-    name: "Windows ${{ matrix.arch }}"
+    name: "Windows ${{ matrix.toolchain }} ${{ matrix.arch }}"
     runs-on: ${{ matrix.runs-on }}
     strategy:
       fail-fast: false
