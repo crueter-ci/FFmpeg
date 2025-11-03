@@ -40,7 +40,7 @@ jobs:
         with:
           arch: ${{ matrix.os.arch }}
 
-      - name: Setup Minimal MSYS2 environmnet
+      - name: Setup Minimal MSYS2 environment
         uses: msys2/setup-msys2@v2
         id: msys2
         if: matrix.toolchain == 'msvc'
@@ -50,7 +50,7 @@ jobs:
           install: >-
             git make unzip pkgconf diffutils
 
-      - name: Setup MSYS2 environmnet
+      - name: Setup MSYS2 environment
         uses: msys2/setup-msys2@v2
         if: matrix.toolchain == 'msys'
         with:
