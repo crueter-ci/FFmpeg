@@ -104,7 +104,8 @@ build() {
     echo "-- Building (SHARED=$SHARED)..."
     export CL=" /MP"
 
-    make -j"$(nproc)"
+    NPROC=$(nproc 2>/dev/null || echo 4)
+	make -j"$NPROC"
 }
 
 strip_libs() {
