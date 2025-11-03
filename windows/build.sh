@@ -83,7 +83,7 @@ configure() {
         --prefix=/
     )
 
-    [ "$SHARED" = true ] && CONFIGURE_FLAGS+=(--enable-shared)
+    [ "$SHARED" = true ] && CONFIGURE_FLAGS+=(--disable-static --enable-shared) || CONFIGURE_FLAGS+=(--disable-shared --enable-static)
 
     if [ "$ARCH" = amd64 ]; then
         CONFIGURE_FLAGS+=(
