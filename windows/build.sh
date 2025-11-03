@@ -44,8 +44,7 @@ configure() {
 			--target-os=win64
 			--arch="$ARCH"
 			--enable-cross-compile
-			--extra-cflags="-I$VULKAN_SDK/include -I$FFNVCODEC_SDK/include"
-			--extra-ldflags="-L$FFNVCODEC_SDK/lib"
+			--extra-cflags="-I$VULKAN_SDK/include"
 		)
 	fi
 
@@ -105,7 +104,7 @@ build() {
     export CL=" /MP"
 
     NPROC=$(nproc 2>/dev/null || echo 4)
-	make -j"$NPROC"
+	make -j"$NPROC" V=1
 }
 
 strip_libs() {
