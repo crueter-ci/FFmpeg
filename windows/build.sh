@@ -6,6 +6,8 @@
 : "${ARCH:=amd64}"
 : "${BUILD_DIR:=build}"
 
+export VERSION
+
 msvc() {
 	[ "$TOOLCHAIN" = msvc ]
 }
@@ -13,6 +15,12 @@ msvc() {
 msys() {
 	! msvc
 }
+
+if msvc; then
+ 	# shellcheck disable=SC2154
+	# gets cl.exe and link.exe into the PATH
+ 	export PATH="$VCToolsInstallDir/bin/Host${VSCMD_ARG_HOST_ARCH}/${VSCMD_ARG_TGT_ARCH}:$PATH"
+fi
 
 msvc && PLATFORM=windows || PLATFORM=mingw
 
@@ -29,14 +37,17 @@ msys && export PATH="/$MSYSTEM/bin:$PATH"
 configure() {
     echo "-- Configuring (SHARED=$SHARED)..."
 
-	msvc && export PKG_CONFIG_PATH="/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH"
+	msvc && [ "$ARCH" = amd64 ] && export PKG_CONFIG_PATH="$FFNVCODEC_DIR/lib/pkgconfig:$PKG_CONFIG_PATH"
+    echo "-- Package config path: $PKG_CONFIG_PATH"
+
+	msvc && [ "$ARCH" = amd64 ] && pkg-config --cflags ffnvcodec
 
 	if msvc; then
 		CONFIGURE_FLAGS+=(
 			--toolchain=msvc
 			--arch="$ARCH"
 			--target-os=win64
-			--extra-cflags="-I$VULKAN_SDK/include"
+			--extra-cflags="-I\"$VULKAN_SDK/include\""
 		)
 	fi
 
@@ -74,6 +85,8 @@ configure() {
             --enable-ffnvcodec
             --enable-nvdec
         )
+
+		msvc && CONFIGURE_FLAGS+=(--extra-cflags="-I\"$FFNVCODEC_DIR/include\"")
     elif msys && [ "$ARCH" = arm64 ]; then
         # ffmpeg is TERRIBLE
         # Anyone who uses configure scripts should be ashamed
@@ -84,7 +97,6 @@ configure() {
         )
     fi
 
-    echo "-- Package config path: $PKG_CONFIG_PATH"
     echo "-- Configure flags: ${CONFIGURE_FLAGS[*]}"
 
     ./configure \
@@ -122,7 +134,7 @@ copy_cmake() {
 
 	echo -n "${REQUIRED_DLLS}" > "${OUT_DIR}"/${REQUIRED_DLLS_NAME}
 
-    cp "/$MSYSTEM/bin/libwinpthread-1.dll" "$OUT_DIR"/bin
+    msys && cp "/$MSYSTEM/bin/libwinpthread-1.dll" "$OUT_DIR"/bin
 }
 
 package() {
@@ -147,15 +159,15 @@ export ROOTDIR
 
 ./tools/download.sh
 
-[ -e "$BUILD_DIR" ] && rm -fr "$BUILD_DIR"
-mkdir -p "$BUILD_DIR"
+# [ -e "$BUILD_DIR" ] && rm -fr "$BUILD_DIR"
+# mkdir -p "$BUILD_DIR"
 cd "$BUILD_DIR"
 
-echo "-- Extracting $PRETTY_NAME $VERSION"
-rm -fr "$DIRECTORY"
-tar xf "$ROOTDIR/$ARTIFACT"
+# echo "-- Extracting $PRETTY_NAME $VERSION"
+# rm -fr "$DIRECTORY"
+# tar xf "$ROOTDIR/$ARTIFACT"
 
-mv "$DIRECTORY" "$FILENAME-$VERSION-$ARCH"
+# mv "$DIRECTORY" "$FILENAME-$VERSION-$ARCH"
 cd "$FILENAME-$VERSION-$ARCH"
 
 # shellcheck disable=SC1091
@@ -166,8 +178,6 @@ REQUIRED_DLLS="avcodec-${AVCODEC_VER}.dll;avutil-${AVUTIL_VER}.dll;libwinpthread
 # Delete existing build artifacts
 rm -fr "$OUT_DIR"
 mkdir -p "$OUT_DIR" || exit 1
-
-export PATH="/$MSYSTEM/bin:$PATH"
 
 # Shared
 export SHARED=true

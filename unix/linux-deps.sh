@@ -6,7 +6,6 @@ pacman -Syu --needed --noconfirm \
     cmake \
     base-devel \
     git \
-    wget \
     unzip \
     gcc \
     ffnvcodec-headers \

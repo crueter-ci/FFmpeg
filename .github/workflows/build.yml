@@ -27,6 +27,10 @@ jobs:
       ARCH: ${{ matrix.os.arch }}
       TOOLCHAIN: ${{ matrix.toolchain }}
 
+    defaults:
+      run:
+        shell: ${{ matrix.toolchain == 'msys2' && 'msys2 {0}' || 'bash' }}
+
     steps:
       - uses: actions/checkout@v4
 
@@ -36,21 +40,39 @@ jobs:
         with:
           arch: ${{ matrix.os.arch }}
 
-      - uses: msys2/setup-msys2@v2
+      - name: Setup Minimal MSYS2 environmnet
+        uses: msys2/setup-msys2@v2
+        if: matrix.toolchain == 'msvc'
+        with:
+          msystem: ${{ matrix.os.msystem }}
+          update: true
+          install: >-
+            git make unzip pkgconf diffutils
+
+      - name: Setup MSYS2 environmnet
+        uses: msys2/setup-msys2@v2
+        if: matrix.toolchain == 'msys2'
         with:
           msystem: ${{ matrix.os.msystem }}
           update: true
           install: >-
             git make unzip pkgconf diffutils
           pacboy: >-
-            toolchain:p vulkan-devel:p pkg-config:p nasm:p
+            toolchain:p vulkan-devel:p pkg-config:p
             nasm:p ffnvcodec-headers:p
 
-      - name: Build
-        shell: msys2 {0}
+      - name: Build (MSYS)
+        if: matrix.toolchain == 'msys2'
+        run: ./windows/build.sh
+
+      - name: Build (MSVC)
+        if: matrix.toolchain == 'msvc'
+        shell: cmd
         run: |
-          chmod a+x ./windows/build.sh
-          ./windows/build.sh
+          # Friendly reminder: your shitty build system is NOT better than CMake!
+          # Because of FFmpeg's horrific build system, we have to use this awful hack where we implant msvc tools
+          # into PATH and run this shit through some shell passthrough fuckery.
+          ${{ setps.msys2.outputs.msys2-location }}\msys2_shell.cmd -no-start -defterm -here -msys -shell bash -c ./windows/build.sh
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
