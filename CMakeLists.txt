@@ -51,7 +51,7 @@ if (ANDROID)
         target_link_libraries(ffmpeg INTERFACE FFmpeg::${LIB})
     endforeach()
 elseif(WIN32)
-    foreach (LIB swscale avutil avcodec avfilter)
+    foreach (LIB swscale avcodec avfilter avutil)
         add_library(${LIB} ${LIB_TYPE} IMPORTED GLOBAL)
         add_library(FFmpeg::${LIB} ALIAS ${LIB})
         target_link_libraries(ffmpeg INTERFACE FFmpeg::${LIB})
@@ -65,6 +65,8 @@ elseif(WIN32)
                 IMPORTED_LOCATION ${FFMPEG_LIB_DIR}/lib${LIB}.a
             )
         endif()
+
+        target_link_libraries(${LIB} INTERFACE bcrypt)
     endforeach()
 
     if (BUILD_SHARED_LIBS)
@@ -90,7 +92,7 @@ elseif(WIN32)
         )
     endif()
 else() # Unix
-    foreach (LIB swscale avutil avcodec avfilter)
+    foreach (LIB swscale avcodec avfilter avutil)
         add_library(${LIB} ${LIB_TYPE} IMPORTED GLOBAL)
         set_target_properties(${LIB} PROPERTIES
             INTERFACE_INCLUDE_DIRECTORIES ${FFMPEG_INCLUDE_DIR}
@@ -108,3 +110,6 @@ else() # Unix
 endif()
 
 add_library(FFmpeg::FFmpeg ALIAS ffmpeg)
+
+set(FFmpeg_LIBRARY_DIR "${FFmpeg_LIB_DIR}" PARENT_SCOPE)
+set(FFmpeg_INCLUDE_DIR "${FFmpeg_INCLUDE_DIR}" PARENT_SCOPE)
