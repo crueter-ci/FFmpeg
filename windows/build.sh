@@ -147,15 +147,15 @@ export ROOTDIR
 
 ./tools/download.sh
 
-# [ -e "$BUILD_DIR" ] && rm -fr "$BUILD_DIR"
+[ -e "$BUILD_DIR" ] && rm -fr "$BUILD_DIR"
 mkdir -p "$BUILD_DIR"
 cd "$BUILD_DIR"
 
 echo "-- Extracting $PRETTY_NAME $VERSION"
-# rm -fr "$DIRECTORY"
-# tar xf "$ROOTDIR/$ARTIFACT"
+rm -fr "$DIRECTORY"
+tar xf "$ROOTDIR/$ARTIFACT"
 
-# mv "$DIRECTORY" "$FILENAME-$VERSION-$ARCH"
+mv "$DIRECTORY" "$FILENAME-$VERSION-$ARCH"
 cd "$FILENAME-$VERSION-$ARCH"
 
 # shellcheck disable=SC1091
