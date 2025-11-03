@@ -74,7 +74,7 @@ configure() {
             --enable-ffnvcodec
             --enable-nvdec
         )
-    elif [ "$ARCH" = arm64 ]; then
+    elif msys && [ "$ARCH" = arm64 ]; then
         # ffmpeg is TERRIBLE
         # Anyone who uses configure scripts should be ashamed
         # JUST USE CMAKE! IT MAKES EVERYONE'S LIVES EASIER!
