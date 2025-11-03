@@ -14,13 +14,19 @@ msys() {
 	! msvc
 }
 
-msvc && PLATFORM=windows || PLATFORM=mingw
+if msvc; then
+	PLATFORM=windows
+else
+	PLATFORM=mingw
+fi
 
 # shellcheck disable=SC1091
 . tools/common.sh || exit 1
 
 # shellcheck disable=SC1091
-msvc && . windows/prepare.sh
+if msvc && [ -f windows/prepare.sh ]; then
+	. windows/prepare.sh
+fi
 
 REQUIRED_DLLS_NAME=requirements.txt
 
@@ -98,7 +104,11 @@ build() {
 strip_libs() {
     echo "-- Stripping DLLs..."
 
-    find . -name "*.dll" -exec strip {} \;
+    if command -v strip >/dev/null 2>&1; then
+        find . -name "*.dll" -exec strip {} \;
+    else
+        echo "-- Skipping strip (tool not found)"
+    fi
 }
 
 copy_build_artifacts() {
@@ -119,7 +129,9 @@ copy_cmake() {
 
 	echo -n "${REQUIRED_DLLS}" > "${OUT_DIR}"/${REQUIRED_DLLS_NAME}
 
-    cp "/$MSYSTEM/bin/libwinpthread-1.dll" "$OUT_DIR"/bin
+    if [ -n "$MSYSTEM" ] && [ -f "/$MSYSTEM/bin/libwinpthread-1.dll" ]; then
+        cp "/$MSYSTEM/bin/libwinpthread-1.dll" "$OUT_DIR/bin"
+    fi
 }
 
 package() {
