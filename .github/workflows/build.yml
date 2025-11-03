@@ -29,7 +29,7 @@ jobs:
 
     defaults:
       run:
-        shell: ${{ matrix.toolchain == 'msys2' && 'msys2 {0}' || 'bash' }}
+        shell: ${{ matrix.toolchain == 'msys' && 'msys2 {0}' || 'bash' }}
 
     steps:
       - uses: actions/checkout@v4
@@ -42,6 +42,7 @@ jobs:
 
       - name: Setup Minimal MSYS2 environmnet
         uses: msys2/setup-msys2@v2
+        id: msys2
         if: matrix.toolchain == 'msvc'
         with:
           msystem: ${{ matrix.os.msystem }}
@@ -51,7 +52,7 @@ jobs:
 
       - name: Setup MSYS2 environmnet
         uses: msys2/setup-msys2@v2
-        if: matrix.toolchain == 'msys2'
+        if: matrix.toolchain == 'msys'
         with:
           msystem: ${{ matrix.os.msystem }}
           update: true
@@ -62,16 +63,16 @@ jobs:
             nasm:p ffnvcodec-headers:p
 
       - name: Build (MSYS)
-        if: matrix.toolchain == 'msys2'
+        if: matrix.toolchain == 'msys'
         run: ./windows/build.sh
 
       - name: Build (MSVC)
         if: matrix.toolchain == 'msvc'
         shell: cmd
         run: |
-          # Friendly reminder: your shitty build system is NOT better than CMake!
-          # Because of FFmpeg's horrific build system, we have to use this awful hack where we implant msvc tools
-          # into PATH and run this shit through some shell passthrough fuckery.
+          :: Friendly reminder: your shitty build system is NOT better than CMake!
+          :: Because of FFmpeg's horrific build system, we have to use this awful hack where we implant msvc tools
+          :: into PATH and run this shit through some shell passthrough fuckery.
           ${{ steps.msys2.outputs.msys2-location }}\msys2_shell.cmd -no-start -defterm -here -msys -shell bash -c ./windows/build.sh
 
       - name: Upload Artifacts
