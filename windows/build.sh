@@ -6,15 +6,7 @@
 : "${ARCH:=amd64}"
 : "${BUILD_DIR:=build}"
 
-msvc() {
-	[ "$TOOLCHAIN" = msvc ]
-}
-
-msys() {
-	! msvc
-}
-
-if msvc; then
+if [ "$TOOLCHAIN" = msvc ]; then
 	PLATFORM=windows
 else
 	PLATFORM=mingw
@@ -24,20 +16,24 @@ fi
 . tools/common.sh || exit 1
 
 # shellcheck disable=SC1091
-if msvc && [ -f windows/prepare.sh ]; then
+if [ "$PLATFORM" = windows ] && [ -f windows/prepare.sh ]; then
 	. windows/prepare.sh
 fi
 
 REQUIRED_DLLS_NAME=requirements.txt
 
-msys && export PATH="/$MSYSTEM/bin:$PATH"
+if [ "$PLATFORM" = mingw ]; then
+	export PATH="/$MSYSTEM/bin:$PATH"
+fi
 
 configure() {
     echo "-- Configuring (SHARED=$SHARED)..."
 
-	msvc && export PKG_CONFIG_PATH="/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH"
+    if [ "$PLATFORM" = windows ]; then
+        export PKG_CONFIG_PATH="/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH"
+    fi
 
-	if msvc; then
+	if [ "$PLATFORM" = windows ]; then
 		CONFIGURE_FLAGS+=(
 			--extra-cflags="-I$VULKAN_SDK/include"
 		)
@@ -77,7 +73,7 @@ configure() {
             --enable-ffnvcodec
             --enable-nvdec
         )
-    elif msys && [ "$ARCH" = arm64 ]; then
+    elif [ "$PLATFORM" = mingw ] && [ "$ARCH" = arm64 ]; then
         # ffmpeg is TERRIBLE
         # Anyone who uses configure scripts should be ashamed
         # JUST USE CMAKE! IT MAKES EVERYONE'S LIVES EASIER!
@@ -130,7 +126,7 @@ copy_cmake() {
 	echo -n "${REQUIRED_DLLS}" > "${OUT_DIR}"/${REQUIRED_DLLS_NAME}
 
     if [ -n "$MSYSTEM" ] && [ -f "/$MSYSTEM/bin/libwinpthread-1.dll" ]; then
-        cp "/$MSYSTEM/bin/libwinpthread-1.dll" "$OUT_DIR/bin"
+        cp "/$MSYSTEM/bin/libwinpthread-1.dll" "$OUT_DIR"/bin
     fi
 }
 
