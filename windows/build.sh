@@ -41,7 +41,7 @@ configure() {
 	fi
 
     # shellcheck disable=SC2054
-    CONFIGURE_FLAGS=(
+    CONFIGURE_FLAGS+=(
         --disable-avdevice
         --disable-avformat
         --disable-doc
