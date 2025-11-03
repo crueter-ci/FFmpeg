@@ -23,7 +23,7 @@ if msvc; then
  	export PATH="$CLPATH:$PATH"
 	echo "$CLPATH"
 	ls "$CLPATH"
-	cl.exe --version
+	cl.exe
 fi
 
 msvc && PLATFORM=windows || PLATFORM=mingw
