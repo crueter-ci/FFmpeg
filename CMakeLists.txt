@@ -111,5 +111,5 @@ endif()
 
 add_library(FFmpeg::FFmpeg ALIAS ffmpeg)
 
-set(FFmpeg_LIBRARY_DIR "${FFmpeg_LIB_DIR}" PARENT_SCOPE)
-set(FFmpeg_INCLUDE_DIR "${FFmpeg_INCLUDE_DIR}" PARENT_SCOPE)
+set(FFmpeg_LIBRARY_DIR "${FFMPEG_LIB_DIR}" PARENT_SCOPE)
+set(FFmpeg_INCLUDE_DIR "${FFMPEG_INCLUDE_DIR}" PARENT_SCOPE)
