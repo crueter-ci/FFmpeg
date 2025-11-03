@@ -1,4 +1,4 @@
-#!/bin/bash -ex
+#!/bin/bash -e
 
 : "${TOOLCHAIN:=msvc}"
 : "${VERSION:=8.0}"
@@ -6,7 +6,16 @@
 : "${ARCH:=amd64}"
 : "${BUILD_DIR:=build}"
 
-if [ "$TOOLCHAIN" = msvc ]; then
+# Funções de plataforma
+msvc() {
+    [ "$TOOLCHAIN" = msvc ]
+}
+
+msys() {
+    ! msvc
+}
+
+if msvc; then
 	PLATFORM=windows
 else
 	PLATFORM=mingw
@@ -16,24 +25,20 @@ fi
 . tools/common.sh || exit 1
 
 # shellcheck disable=SC1091
-if [ "$PLATFORM" = windows ] && [ -f windows/prepare.sh ]; then
+if msvc && [ -f windows/prepare.sh ]; then
 	. windows/prepare.sh
 fi
 
 REQUIRED_DLLS_NAME=requirements.txt
 
-if [ "$PLATFORM" = mingw ]; then
-	export PATH="/$MSYSTEM/bin:$PATH"
-fi
+msys && export PATH="/$MSYSTEM/bin:$PATH"
 
 configure() {
     echo "-- Configuring (SHARED=$SHARED)..."
 
-    if [ "$PLATFORM" = windows ]; then
-        export PKG_CONFIG_PATH="/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH"
-    fi
+	msvc && export PKG_CONFIG_PATH="/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH"
 
-	if [ "$PLATFORM" = windows ]; then
+	if msvc; then
 		CONFIGURE_FLAGS+=(
 			--extra-cflags="-I$VULKAN_SDK/include"
 		)
@@ -73,7 +78,7 @@ configure() {
             --enable-ffnvcodec
             --enable-nvdec
         )
-    elif [ "$PLATFORM" = mingw ] && [ "$ARCH" = arm64 ]; then
+    elif msys && [ "$ARCH" = arm64 ]; then
         # ffmpeg is TERRIBLE
         # Anyone who uses configure scripts should be ashamed
         # JUST USE CMAKE! IT MAKES EVERYONE'S LIVES EASIER!
