@@ -4,8 +4,8 @@
 
 echo "-- Installing Vulkan SDK..."
 
-: "${VULKAN_VER:=1.4.321.1}"
-: "${VULKAN_SDK:=C:/VulkanSDK/$VULKAN_VER}"
+VULKAN_VER=1.4.321.1
+VULKAN_SDK=C:/VulkanSDK/$VULKAN_VER
 
 FFNVCODEC_VER=n13.0.19.0
 

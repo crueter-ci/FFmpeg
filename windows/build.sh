@@ -19,11 +19,8 @@ msvc && PLATFORM=windows || PLATFORM=mingw
 # shellcheck disable=SC1091
 . tools/common.sh || exit 1
 
-export VULKAN_VER=1.4.321.1
-export VULKAN_SDK=C:/VulkanSDK/$VULKAN_VER
-
 # shellcheck disable=SC1091
-msvc && windows/prepare.sh
+msvc && . windows/prepare.sh
 
 REQUIRED_DLLS_NAME=requirements.txt
 
@@ -150,15 +147,15 @@ export ROOTDIR
 
 ./tools/download.sh
 
-[ -e "$BUILD_DIR" ] && rm -fr "$BUILD_DIR"
+# [ -e "$BUILD_DIR" ] && rm -fr "$BUILD_DIR"
 mkdir -p "$BUILD_DIR"
 cd "$BUILD_DIR"
 
 echo "-- Extracting $PRETTY_NAME $VERSION"
-rm -fr "$DIRECTORY"
-tar xf "$ROOTDIR/$ARTIFACT"
+# rm -fr "$DIRECTORY"
+# tar xf "$ROOTDIR/$ARTIFACT"
 
-mv "$DIRECTORY" "$FILENAME-$VERSION-$ARCH"
+# mv "$DIRECTORY" "$FILENAME-$VERSION-$ARCH"
 cd "$FILENAME-$VERSION-$ARCH"
 
 # shellcheck disable=SC1091
