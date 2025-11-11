@@ -113,28 +113,24 @@ jobs:
   unix:
     name: "${{ matrix.platform }} ${{ matrix.arch }}"
     runs-on: ${{ matrix.runs-on }}
-    container: ghcr.io/pkgforge-dev/archlinux:latest
     strategy:
       fail-fast: false
       matrix:
         include:
-          # - platform: solaris
-          #   runs-on: ubuntu-latest
-          #   arch: amd64
-          #   vm-arch: x86_64
-
-          # - platform: freebsd
-          #   runs-on: ubuntu-latest
-          #   arch: amd64
-          #   vm-arch: x86_64
-
-          - platform: linux
+          - platform: solaris
             runs-on: ubuntu-latest
             arch: amd64
+            vm-arch: x86_64
 
-          - platform: linux
-            runs-on: ubuntu-24.04-arm
-            arch: aarch64
+          - platform: freebsd
+            runs-on: ubuntu-latest
+            arch: amd64
+            vm-arch: x86_64
+
+          - platform: openbsd
+            runs-on: ubuntu-latest
+            arch: amd64
+            vm-arch: x86_64
 
     env:
       PLATFORM: ${{ matrix.platform }}
@@ -143,51 +139,92 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # - name: Build (Solaris)
-      #   if: matrix.platform == 'solaris'
-      #   uses: vmactions/solaris-vm@v1.1.4    name: "Windows ${{ matrix.arch }}"
+      - name: Disable man-db updates
+        run: sudo rm /var/lib/man-db/auto-update
 
-      #   with:
-      #     release: "11.4-gcc"
-      #     usesh: true
-      #     envs: 'PLATFORM ARCH VERSION GITHUB_WORKSPACE'
-      #     prepare: |
-      #       pkgutil -y -i wget
-      #       pkgutil -U -y tar
+      - name: Build (Solaris)
+        if: matrix.platform == 'solaris'
+        uses: vmactions/omnios-vm@v1
+        with:
+          arch: ${{ matrix.vm-arch }}
+          release: "r151054"
+          usesh: true
+          envs: 'PLATFORM ARCH GITHUB_WORKSPACE'
 
-      #     run: |
-      #       chmod a+x ./unix/build.sh
-      #       ./unix/build.sh
+          run: |
+            chmod a+x ./deps/omnios.sh
+            chmod a+x ./tools/build.sh
 
-      # - name: Build (FreeBSD)
-      #   if: matrix.platform == 'freebsd'
-      #   uses: vmactions/freebsd-vm@v1.2.2
-      #   with:
-      #     usesh: true
-      #     envs: 'PLATFORM ARCH VERSION GITHUB_WORKSPACE'
-      #     prepare: |
-      #       pkg install -y wget bash
+            ./deps/omnios.sh
+            ./tools/build.sh
 
-      #     run: |
-      #       ls unix
-      #       chmod a+x ./unix/build.sh
-      #       bash unix/build.sh
+      - name: Build (FreeBSD)
+        if: matrix.platform == 'freebsd'
+        uses: vmactions/freebsd-vm@v1
+        with:
+          arch: ${{ matrix.vm-arch }}
+          usesh: true
+          envs: 'PLATFORM ARCH GITHUB_WORKSPACE'
 
-      - name: Get Dependencies
-        run: |
-          chmod a+x ./unix/linux-deps.sh
-          ./unix/linux-deps.sh
+          run: |
+            chmod a+x ./deps/freebsd.sh
+            chmod a+x ./tools/build.sh
 
-      - name: Build (Linux)
-        if: matrix.platform == 'linux'
-        run: |
-          chmod a+x ./unix/build.sh
-          ./unix/build.sh
+            ./deps/freebsd.sh
+            bash -e ./tools/build.sh
+
+      - name: Build (OpenBSD)
+        if: matrix.platform == 'openbsd'
+        uses: vmactions/openbsd-vm@v1
+        with:
+          arch: ${{ matrix.vm-arch }}
+          usesh: true
+          envs: 'PLATFORM ARCH GITHUB_WORKSPACE'
+
+          run: |
+            chmod a+x ./deps/openbsd.sh
+            chmod a+x ./tools/build.sh
+
+            ./deps/openbsd.sh
+            bash -e ./tools/build.sh
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.platform }}-${{ matrix.arch }}
+          path: artifacts/*
+
+  linux:
+    name: "Linux ${{ matrix.arch }}"
+    runs-on: ${{ matrix.runs-on }}
+    container: ghcr.io/pkgforge-dev/archlinux:latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runs-on: ubuntu-latest
+            arch: amd64
+
+          - runs-on: ubuntu-24.04-arm
+            arch: aarch64
+
+    env:
+      ARCH: ${{ matrix.arch }}
+      PLATFORM: linux
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deps
+        run: ./deps/linux.sh
+
+      - name: Build
+        run: ./tools/build.sh
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-${{ matrix.arch }}
           path: artifacts/*
 
   macos:

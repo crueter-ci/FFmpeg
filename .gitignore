@@ -2,6 +2,7 @@ build
 out
 artifacts
 /*.tar.gz
+/*.zip
 changelog.md
 /ffmpeg-kit*
 

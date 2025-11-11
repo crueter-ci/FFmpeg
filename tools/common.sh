@@ -1,12 +1,97 @@
-#!/bin/sh
+#!/bin/sh -e
 
-# Common variables (repo, artifact, etc) used by tools
+## Common variables ##
 
-[ -z "$VERSION" ] && echo "You must specify the VERSION environment variable." && exit 1
+ROOTDIR="$PWD"
+: "${OUT_DIR:=$PWD/out}"
+: "${PLATFORM:?-- You must supply the PLATFORM environment variable.}"
 
+# In some projects you will want to fetch latest from gh/fj api
+VERSION="8.0"
+export COMMIT="be99d2c0b214ec2ff5ec492668ccec5469ca45ad"
 export PRETTY_NAME="FFmpeg"
 export FILENAME="ffmpeg"
 export REPO="FFmpeg/FFmpeg"
-export DIRECTORY="FFmpeg-n$VERSION"
+export DIRECTORY="FFmpeg-$COMMIT"
 export TAG="n$VERSION"
-export ARTIFACT="$TAG.tar.gz"
+export ARTIFACT="$COMMIT.zip"
+export DOWNLOAD_URL="https://github.com/$REPO/archive/$ARTIFACT"
+
+SHORTSHA=$(echo "$COMMIT" | cut -c1-10)
+export VERSION="$VERSION-$SHORTSHA"
+
+## Utility Functions ##
+
+# download
+download() {
+	TRIES=0
+	[ -f "$ARTIFACT" ] && return
+
+	while [ "$TRIES" -le 30 ]; do
+		curl -L "$DOWNLOAD_URL" -o "$ARTIFACT" && return
+		TRIES=$((TRIES + 1))
+		echo "-- Download failed, trying again in 5 seconds..."
+		sleep 0
+	done
+
+	echo "-- Download failed after 30 tries, aborting"
+	exit 1
+}
+
+# extract the archive + apply patches
+extract() {
+	echo "-- Extracting $PRETTY_NAME $VERSION"
+	rm -fr "$DIRECTORY"
+
+	case "$ARTIFACT" in
+		*.zip) unzip "$ROOTDIR/$ARTIFACT" >/dev/null ;;
+		*.tar.*) tar xf "$ROOTDIR/$ARTIFACT" >/dev/null ;;
+		*.7z) 7z x "$ROOTDIR/$ARTIFACT" >/dev/null ;;
+	esac
+}
+
+# generate sha1, 256, and 512 sums for a file
+sums() {
+	for file in "$@"; do
+		for algo in 1 256 512; do
+			if ! command -v sha${algo}sum >/dev/null 2>&1; then
+				sha${algo} "$file" | awk '{print $4}' | tr -d "\n" > "$file".sha${algo}sum
+			else
+				sha${algo}sum "$file" | cut -d " " -f1 | tr -d "\n" > "$file".sha${algo}sum
+			fi
+		done
+	done
+}
+
+# nproc
+num_procs() {
+	# default to 4 because github actions
+	nproc || sysctl -n hw.logicalcpu || getconf _NPROCESSORS_ONLN || echo 4
+}
+
+## Packaging ##
+copy_cmake() {
+	echo "-- Copying CMake artifacts..."
+
+    cp "$ROOTDIR"/CMakeLists.txt "$OUT_DIR"
+}
+
+package() {
+    echo "-- Packaging..."
+    mkdir -p "$ROOTDIR/artifacts"
+
+	if [ "$PLATFORM" = android ]; then
+		TARBALL=$FILENAME-$PLATFORM-$VERSION.tar
+	else
+		TARBALL=$FILENAME-$PLATFORM-$ARCH-$VERSION.tar
+	fi
+
+    cd "$OUT_DIR"
+    tar cf "$ROOTDIR/artifacts/$TARBALL" ./*
+
+    cd "$ROOTDIR/artifacts"
+    zstd -10 "$TARBALL"
+    rm "$TARBALL"
+
+    sums "$TARBALL.zst"
+}

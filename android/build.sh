@@ -2,23 +2,19 @@
 set -e
 
 # NB: use ndk 25
+# shellcheck disable=SC2034
+PLATFORM=android
+
+# shellcheck disable=SC1091
+. ./tools/common.sh
 
 [ -z "$ANDROID_NDK_ROOT" ] && echo "You must supply the ANDROID_NDK_ROOT environment variable." && exit 1
 [ -z "$ANDROID_SDK_ROOT" ] && echo "You must supply the ANDROID_SDK_ROOT environment variable." && exit 1
 
-[ -z "$OUT_DIR" ] && OUT_DIR=$PWD/out
-[ -z "$ARCH" ] && ARCH=aarch64
-
-# 8.0 requires more patching, so "fake" 8.0 for now for consistency
-VERSION=${VERSION:-8.0}
-
-ROOTDIR=$PWD
 ARTIFACTS_DIR=$PWD/artifacts
 mkdir -p "$ARTIFACTS_DIR"
 
 REPO=ffmpeg-kit-16KB
-
-ARCH=arm64-v8a
 
 echo "-- Cloning..."
 [ ! -d "$REPO" ] && git clone --depth 1 https://github.com/AliAkhgar/$REPO.git
@@ -64,19 +60,9 @@ cp -r prebuilt/android-arm64/{ffmpeg,libvpx,x264}/* "$OUT_DIR"
 export PATH="$ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH"
 find . -name "*.so" -exec llvm-strip --strip-all {} \;
 
-cp "$ROOTDIR/CMakeLists.txt" "$OUT_DIR"
-
-# left here for compat
-cp "$ROOTDIR/android/ffmpeg.cmake" "$OUT_DIR"
-
-TARBALL=$ARTIFACTS_DIR/ffmpeg-android-$VERSION.tar
+copy_cmake
 
 cd "$OUT_DIR"
 rm -rf share lib/pkgconfig
 
-tar cf "$TARBALL" ./*
-
-zstd -10 "$TARBALL"
-rm "$TARBALL"
-
-"$ROOTDIR"/tools/sums.sh "$TARBALL".zst
+package
