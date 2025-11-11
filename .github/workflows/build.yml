@@ -8,7 +8,7 @@ env:
 
 jobs:
   windows:
-    name: "Windows ${{ matrix.toolchain }} ${{ matrix.os.arch }}"
+    name: "${{ matrix.platform }} ${{ matrix.os.arch }}"
     runs-on: ${{ matrix.os.runs-on }}
     strategy:
       fail-fast: false
@@ -21,29 +21,29 @@ jobs:
           - runs-on: windows-11-arm
             arch: arm64
             msystem: clangarm64
-        toolchain: [msvc, msys]
+        platform: [windows, mingw]
 
     env:
       ARCH: ${{ matrix.os.arch }}
-      TOOLCHAIN: ${{ matrix.toolchain }}
+      PLATFORM: ${{ matrix.platform }}
 
     defaults:
       run:
-        shell: ${{ matrix.toolchain == 'msys' && 'msys2 {0}' || 'bash' }}
+        shell: ${{ matrix.platform == 'mingw' && 'msys2 {0}' || 'bash' }}
 
     steps:
       - uses: actions/checkout@v4
 
       - name: Setup MSVC
         uses: ilammy/msvc-dev-cmd@v1
-        if: matrix.toolchain == 'msvc'
+        if: matrix.platform == 'windows'
         with:
           arch: ${{ matrix.os.arch }}
 
       - name: Setup Minimal MSYS2 environment
         uses: msys2/setup-msys2@v2
         id: msys2
-        if: matrix.toolchain == 'msvc'
+        if: matrix.platform == 'windows'
         with:
           msystem: ${{ matrix.os.msystem }}
           update: true
@@ -52,7 +52,7 @@ jobs:
 
       - name: Setup MSYS2 environment
         uses: msys2/setup-msys2@v2
-        if: matrix.toolchain == 'msys'
+        if: matrix.platform == 'mingw'
         with:
           msystem: ${{ matrix.os.msystem }}
           update: true
@@ -63,11 +63,11 @@ jobs:
             nasm:p ffnvcodec-headers:p
 
       - name: Build (MSYS)
-        if: matrix.toolchain == 'msys'
+        if: matrix.platform == 'mingw'
         run: ./tools/build.sh
 
       - name: Build (MSVC)
-        if: matrix.toolchain == 'msvc'
+        if: matrix.platform == 'windows'
         shell: cmd
         run: |
           :: Friendly reminder: your shitty build system is NOT better than CMake!
@@ -78,7 +78,7 @@ jobs:
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.toolchain }}-${{ matrix.os.arch }}
+          name: ${{ matrix.platform }}-${{ matrix.os.arch }}
           path: artifacts/*
 
   android:
@@ -156,6 +156,8 @@ jobs:
             chmod a+x ./tools/build.sh
 
             ./deps/omnios.sh
+
+            alias make=gmake
             ./tools/build.sh
 
       - name: Build (FreeBSD)
@@ -171,6 +173,9 @@ jobs:
             chmod a+x ./tools/build.sh
 
             ./deps/freebsd.sh
+
+            alias gcc=gcc15
+            alias g++=g++15
             bash -e ./tools/build.sh
 
       - name: Build (OpenBSD)
@@ -186,6 +191,8 @@ jobs:
             chmod a+x ./tools/build.sh
 
             ./deps/openbsd.sh
+
+            alias gcc=egcc
             bash -e ./tools/build.sh
 
       - name: Upload Artifacts

@@ -78,7 +78,6 @@ case "$PLATFORM" in
 	openbsd)
 		FFmpeg_HWACCEL_FLAGS=(
 			"${VULKAN_ACCEL[@]}"
-			"${VAAPI_ACCEL[@]}"
         )
 		SUFFIX=so
 		;;
