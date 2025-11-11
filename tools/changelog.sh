@@ -21,7 +21,7 @@ artifact() {
     printf '| %s |' "$COL1"
     for sum in 1 256 512; do
         DOWNLOAD="[Download]($BASE_URL.sha${sum}sum)"
-        printf " %s |" "$DOWNLOAD" 
+        printf " %s |" "$DOWNLOAD"
     done
     echo
 }
@@ -38,6 +38,7 @@ artifact "MinGW (amd64)" mingw-amd64
 artifact "MinGW (arm64)" mingw-arm64
 artifact "Linux (amd64)" linux-amd64
 artifact "Linux (aarch64)" linux-aarch64
+artifact "macOS" macos-universal
 # artifact "Solaris (amd64)" solaris-amd64
 # artifact "FreeBSD (amd64)" freebsd-amd64
 # artifact "OpenBSD (amd64)" openbsd-amd64

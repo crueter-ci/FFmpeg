@@ -10,18 +10,26 @@
 
 [ "$PLATFORM" = "solaris" ] && MAKE="gmake" || MAKE="make"
 
+[ "$PLATFORM" = "macos" ] && SUFFIX=dylib || SUFFIX=so
+
 configure() {
 	echo "-- Configuring..."
 
-    FFmpeg_HWACCEL_FLAGS=(
-        --enable-cuvid
-        --enable-ffnvcodec
-        --enable-nvdec
-        --enable-vulkan
-        --enable-hwaccel={h264_nvdec,vp8_nvdec,vp9_nvdec,h264_vaapi,vp8_vaapi,vp9_vaapi,h264_vulkan,vp9_vulkan}
-    )
+    if [ "$PLATFORM" != "macos" ]; then
+        FFmpeg_HWACCEL_FLAGS=(
+            --enable-cuvid
+            --enable-ffnvcodec
+            --enable-nvdec
+            --enable-vulkan
+            --enable-hwaccel={h264_nvdec,vp8_nvdec,vp9_nvdec,h264_vaapi,vp8_vaapi,vp9_vaapi,h264_vulkan,vp9_vulkan}
+        )
+    else
+        FFmpeg_HWACCEL_FLAGS=(
+            --enable-videotoolbox
+            --disable-iconv
+        )
+    fi
 
-    # Configure here (e.g. cmake or the like)
     ./configure \
         --disable-avdevice \
         --disable-avformat \
@@ -48,7 +56,7 @@ build() {
 }
 
 strip_libs() {
-    find . -name "lib*.so" -exec strip {} \;
+    find . -name "lib*.$SUFFIX" -exec strip {} \;
 }
 
 copy_build_artifacts() {
@@ -57,6 +65,7 @@ copy_build_artifacts() {
 
     $MAKE install DESTDIR="$OUT_DIR"
     rm -rf "$OUT_DIR/lib/pkgconfig"
+    rm -rf "$OUT_DIR/share"
 }
 
 copy_cmake() {

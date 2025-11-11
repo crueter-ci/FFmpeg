@@ -47,6 +47,7 @@ jobs:
             msys-*/*.tar.zst*
             msvc-*/*.tar.zst*
             android/*.tar.zst*
+            macos-*/*.tar.zst*
             linux-*/*.tar.zst*
 
           make_latest: true
