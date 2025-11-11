@@ -64,7 +64,7 @@ jobs:
 
       - name: Build (MSYS)
         if: matrix.toolchain == 'msys'
-        run: ./windows/build.sh
+        run: ./tools/build.sh
 
       - name: Build (MSVC)
         if: matrix.toolchain == 'msvc'
@@ -73,7 +73,7 @@ jobs:
           :: Friendly reminder: your shitty build system is NOT better than CMake!
           :: Because of FFmpeg's horrific build system, we have to use this awful hack where we implant msvc tools
           :: into PATH and run this shit through some shell passthrough fuckery.
-          ${{ steps.msys2.outputs.msys2-location }}\msys2_shell.cmd -no-start -defterm -here -msys -shell bash -c ./windows/build.sh
+          ${{ steps.msys2.outputs.msys2-location }}\msys2_shell.cmd -no-start -defterm -here -msys -shell bash -c ./tools/build.sh
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
@@ -244,13 +244,13 @@ jobs:
 
       - name: Get Dependencies
         run: |
-          chmod a+x ./unix/macos-deps.sh
-          ./unix/macos-deps.sh
+          chmod a+x ./deps/macos.sh
+          ./deps/macos.sh
 
       - name: Build
         run: |
-          chmod a+x ./unix/build.sh
-          ./unix/build.sh
+          chmod a+x ./tools/build.sh
+          ./tools/build.sh
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4

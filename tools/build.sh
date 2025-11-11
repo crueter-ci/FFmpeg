@@ -83,7 +83,6 @@ case "$PLATFORM" in
 		SUFFIX=so
 		;;
 	solaris)
-		FFmpeg_HWACCEL_FLAGS=("${VAAPI_ACCEL[@]}")
 		SUFFIX=so
 		;;
 	macos)
