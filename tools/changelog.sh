@@ -3,7 +3,7 @@
 ## Generates a "changelog"/download utility table ##
 
 # shellcheck disable=SC1091
-. tools/common.sh
+. tools/vars.sh
 
 # Change to the current repo
 BASE_DOWNLOAD_URL="https://github.com/crueter-ci/$PRETTY_NAME/releases/download"
