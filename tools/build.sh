@@ -73,6 +73,7 @@ case "$PLATFORM" in
 
 			--cc=egcc
 			--cxx=eg++
+			--extra-cflags="-I/usr/local/include"
         )
 		SUFFIX=so
 		;;
