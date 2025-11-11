@@ -20,6 +20,23 @@ export DOWNLOAD_URL="https://github.com/$REPO/archive/$ARTIFACT"
 SHORTSHA=$(echo "$COMMIT" | cut -c1-10)
 export VERSION="$VERSION-$SHORTSHA"
 
+## Command Checks ##
+
+must_install() {
+	for cmd in "$@"; do
+		command -v "$cmd" >/dev/null 2>&1 || { echo "-- $cmd must be installed" && exit 1; }
+	done
+}
+
+must_install curl zstd tar
+
+case "$ARTIFACT" in
+	*.zip) must_install unzip ;;
+	*.tar.*) ;;
+	*.7z) must_install 7z ;;
+	*) echo "-- Unsupported extension ${ARTIFACT##.*}"; exit 1 ;;
+esac
+
 ## Utility Functions ##
 
 # download

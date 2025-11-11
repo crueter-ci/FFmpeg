@@ -73,7 +73,7 @@ jobs:
           :: Friendly reminder: your shitty build system is NOT better than CMake!
           :: Because of FFmpeg's horrific build system, we have to use this awful hack where we implant msvc tools
           :: into PATH and run this shit through some shell passthrough fuckery.
-          ${{ steps.msys2.outputs.msys2-location }}\msys2_shell.cmd -no-start -defterm -here -msys -shell bash -c ./tools/build.sh
+          ${{ steps.msys2.outputs.msys2-location }}\msys2_shell.cmd -no-start -defterm -here -msys -shell bash -c "PLATFORM=${{ matrix.platform }} ./tools/build.sh"
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4

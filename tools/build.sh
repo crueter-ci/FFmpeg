@@ -11,30 +11,11 @@ set -e
 : "${ARCH:=amd64}"
 : "${BUILD_DIR:=build}"
 
-## Command Checks ##
-
-must_install() {
-	for cmd in "$@"; do
-		command -v "$cmd" >/dev/null 2>&1 || { echo "-- $cmd must be installed" && exit 1; }
-	done
-}
-
-must_install curl zstd tar
-
-case "$ARTIFACT" in
-	*.zip) must_install unzip ;;
-	*.tar.*) ;;
-	*.7z) must_install 7z ;;
-	*) echo "-- Unsupported extension ${ARTIFACT##.*}"; exit 1 ;;
-esac
-
 ## Platform Stuff ##
 
 [ "$PLATFORM" = "solaris" ] && MAKE="gmake" || MAKE="make"
 
-if [ "$PLATFORM" != android ]; then
-	must_install "$MAKE"
-fi
+must_install "$MAKE"
 
 msvc() {
 	[ "$PLATFORM" = windows ]
@@ -82,7 +63,7 @@ case "$PLATFORM" in
 			"${NVDEC_ACCEL[@]}"
 
 			--cc=gcc15
-			--cc=g++15
+			--cxx=g++15
         )
 		SUFFIX=so
 		;;
@@ -91,14 +72,11 @@ case "$PLATFORM" in
 			"${VULKAN_ACCEL[@]}"
 
 			--cc=egcc
-			--cc=eg++
+			--cxx=eg++
         )
 		SUFFIX=so
 		;;
 	solaris)
-		FFmpeg_HWACCEL_FLAGS=(
-			"${VULKAN_ACCEL[@]}"
-        )
 		SUFFIX=so
 		;;
 	macos)
