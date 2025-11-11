@@ -13,8 +13,6 @@ set -e
 
 ## Platform Stuff ##
 
-must_install "$MAKE"
-
 msvc() {
 	[ "$PLATFORM" = windows ]
 }
@@ -45,8 +43,6 @@ VAAPI_ACCEL=(--enable-vaapi --enable-hwaccel={h264,vp8,vp9}_vaapi)
 DXVA_ACCEL=(--enable-dxva2 --enable-hwaccel={h264,vp9}_dxva2)
 D3D_ACCEL=(--enable-d3d11va --enable-hwaccel={h264,vp9}_d311vda{,2})
 
-SUFFIX=so
-MAKE=make
 case "$PLATFORM" in
 	linux)
 		FFmpeg_HWACCEL_FLAGS=(
@@ -60,31 +56,22 @@ case "$PLATFORM" in
 			"${VULKAN_ACCEL[@]}"
 			"${VAAPI_ACCEL[@]}"
 			"${NVDEC_ACCEL[@]}"
-
-			--cc=gcc15
-			--cxx=g++15
         )
-		MAKE=gmake
 		;;
 	openbsd)
 		FFmpeg_HWACCEL_FLAGS=(
 			"${VULKAN_ACCEL[@]}"
 
-			--cc=egcc
-			--cxx=eg++
 			--extra-cflags="-I/usr/local/include"
         )
-		MAKE=gmake
 		;;
 	solaris)
-		MAKE=gmake
 		;;
 	macos)
 		FFmpeg_HWACCEL_FLAGS=(
             --enable-videotoolbox
             --disable-iconv
         )
-		SUFFIX=dylib
 		;;
 	windows)
 		FFmpeg_HWACCEL_FLAGS=(
@@ -109,14 +96,13 @@ case "$PLATFORM" in
 		)
 
 		[ "$ARCH" = amd64 ] && FFmpeg_HWACCEL_FLAGS+=("${NVDEC_ACCEL[@]}")
-
-		[ "$ARCH" = arm64 ] && FFmpeg_HWACCEL_FLAGS+=(
-            --cc=clang
-            --cxx=clang++
-        )
-		SUFFIX=dll
 		;;
 esac
+
+FFmpeg_HWACCEL_FLAGS+=(
+	--cc=clang
+	--cxx=clang++
+)
 
 ## Build Functions ##
 
@@ -169,7 +155,7 @@ strip_libs() {
 	case "$PLATFORM" in
 		windows) ;;
 		android) find "$OUT_DIR" -name "*.so" -exec llvm-strip --strip-all {} \; ;;
-		*) find "$OUT_DIR" -name "*.$SUFFIX" -exec strip {} \; ;;
+		*) find "$OUT_DIR" -name "*.$SHARED_SUFFIX" -exec strip {} \; ;;
 	esac
 }
 

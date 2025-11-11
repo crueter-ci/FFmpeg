@@ -120,3 +120,60 @@ package() {
 
     sums "$TARBALL.zst"
 }
+
+
+## Platform Stuff ##
+
+SHARED_SUFFIX=so
+STATIC_SUFFIX=a
+MAKE="make"
+CC=gcc
+CXX=g++
+
+case "$PLATFORM" in
+	linux) ;;
+	freebsd)
+		MAKE="gmake"
+		CC=gcc15
+		CXX=g++15
+		;;
+	openbsd)
+		MAKE="gmake"
+		CC=egcc
+		CXX=eg++
+		;;
+	solaris)
+		MAKE="gmake"
+		;;
+	macos)
+		SHARED_SUFFIX=dylib
+		CC=clang
+		CXX=clang++
+		;;
+	windows)
+		SHARED_SUFFIX=dll
+		CC=cl
+		CXX=cl
+		;;
+	mingw)
+		SHARED_SUFFIX=dll
+		case "$ARCH" in
+			amd64)
+				CC=gcc
+				CXX=g++
+				;;
+			arm64)
+				CC=clang
+				CXX=clang++
+				;;
+		esac
+		;;
+esac
+
+must_install "$MAKE"
+
+export SHARED_SUFFIX
+export STATIC_SUFFIX
+export CC
+export CXX
+export MAKE
