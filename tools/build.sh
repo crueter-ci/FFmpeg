@@ -146,6 +146,7 @@ configure() {
 		--disable-shared
         --enable-filter=yadif,scale
         --enable-pic
+		--enable-small
         --prefix=/
         "${FFmpeg_HWACCEL_FLAGS[@]}"
 	)
@@ -177,7 +178,8 @@ copy_build_artifacts() {
     echo "-- Copying artifacts..."
     mkdir -p "$OUT_DIR"
 
-    $MAKE install DESTDIR="${OUT_DIR}"
+    $MAKE install-libs DESTDIR="${OUT_DIR}"
+    $MAKE install-headers DESTDIR="${OUT_DIR}"
     rm -rf "$OUT_DIR"/{share,lib/pkgconfig}
 }
 
