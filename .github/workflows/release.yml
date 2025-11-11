@@ -24,7 +24,7 @@ jobs:
 
       - name: Get Version
         run: |
-          . ./tools/common.sh
+          . ./tools/vars.sh
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
       - name: Generate Changelog

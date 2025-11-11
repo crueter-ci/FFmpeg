@@ -21,7 +21,7 @@ jobs:
 
       - name: Get Version
         run: |
-          . ./tools/common.sh
+          . ./tools/vars.sh
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
       - name: Generate Changelog
@@ -33,3 +33,7 @@ jobs:
           echo "Version: $VERSION"
           echo
           cat changelog.md
+
+      - name: Check artifacts
+        run:
+          find -name "*.tar.zst*"
