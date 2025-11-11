@@ -83,7 +83,15 @@ sums() {
 # nproc
 num_procs() {
 	# default to 4 because github actions
-	nproc || sysctl -n hw.logicalcpu || getconf _NPROCESSORS_ONLN || echo 4
+	if command -v nproc >/dev/null 2>&1; then
+		nproc
+	elif command -v sysctl >/dev/null 2>&1; then
+		sysctl -n hw.logicalcpu
+	elif command -v getconf >/dev/null 2>&1; then
+		getconf _NPROCESSORS_ONLN
+	else
+		echo 4
+	fi
 }
 
 ## Packaging ##

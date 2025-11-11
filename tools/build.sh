@@ -13,8 +13,6 @@ set -e
 
 ## Platform Stuff ##
 
-[ "$PLATFORM" = "solaris" ] && MAKE="gmake" || MAKE="make"
-
 must_install "$MAKE"
 
 msvc() {
@@ -47,6 +45,8 @@ VAAPI_ACCEL=(--enable-vaapi --enable-hwaccel={h264,vp8,vp9}_vaapi)
 DXVA_ACCEL=(--enable-dxva2 --enable-hwaccel={h264,vp9}_dxva2)
 D3D_ACCEL=(--enable-d3d11va --enable-hwaccel={h264,vp9}_d311vda{,2})
 
+SUFFIX=so
+MAKE=make
 case "$PLATFORM" in
 	linux)
 		FFmpeg_HWACCEL_FLAGS=(
@@ -54,7 +54,6 @@ case "$PLATFORM" in
 			"${VAAPI_ACCEL[@]}"
 			"${NVDEC_ACCEL[@]}"
         )
-		SUFFIX=so
 		;;
 	freebsd)
 		FFmpeg_HWACCEL_FLAGS=(
@@ -65,7 +64,7 @@ case "$PLATFORM" in
 			--cc=gcc15
 			--cxx=g++15
         )
-		SUFFIX=so
+		MAKE=gmake
 		;;
 	openbsd)
 		FFmpeg_HWACCEL_FLAGS=(
@@ -75,10 +74,10 @@ case "$PLATFORM" in
 			--cxx=eg++
 			--extra-cflags="-I/usr/local/include"
         )
-		SUFFIX=so
+		MAKE=gmake
 		;;
 	solaris)
-		SUFFIX=so
+		MAKE=gmake
 		;;
 	macos)
 		FFmpeg_HWACCEL_FLAGS=(
