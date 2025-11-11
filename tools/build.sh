@@ -167,7 +167,7 @@ copy_build_artifacts() {
 	if [ "$PLATFORM" = "solaris" ]; then
 		mkdir -p "$OUT_DIR"/lib
 		find . -name "*.a" -exec cp {} "$OUT_DIR"/lib \;
-		ls "$OUT_DIR"/lib -l
+		ls "$OUT_DIR"/lib
 		echo
 	    $MAKE install-headers INSTALL="/usr/bin/install -C" DESTDIR="${OUT_DIR}"
 	else
