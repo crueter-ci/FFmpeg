@@ -30,7 +30,6 @@ configure() {
         )
     fi
 
-    # Configure here (e.g. cmake or the like)
     ./configure \
         --disable-avdevice \
         --disable-avformat \
