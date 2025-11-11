@@ -38,8 +38,8 @@ jobs:
           name: FFmpeg ${{ env.VERSION }}
           tag_name: v${{ env.VERSION }}
           files: |
-            msys-*/*.tar.zst*
-            msvc-*/*.tar.zst*
+            windows-*/*.tar.zst*
+            mingw-*/*.tar.zst*
             android/*.tar.zst*
             macos-*/*.tar.zst*
             linux-*/*.tar.zst*
