@@ -179,7 +179,12 @@ copy_build_artifacts() {
     echo "-- Copying artifacts..."
     mkdir -p "$OUT_DIR"
 
-    $MAKE install-libs DESTDIR="${OUT_DIR}"
+	if [ "$PLATFORM" = "solaris" ]; then
+		mkdir -p "$OUT_DIR"/lib
+		find "$BUILD_DIR" -name "*.a" -exec cp {} "$OUT_DIR"/lib \;
+	else
+    	$MAKE install-libs DESTDIR="${OUT_DIR}"
+	fi
     $MAKE install-headers DESTDIR="${OUT_DIR}"
     rm -rf "$OUT_DIR"/{share,lib/pkgconfig}
 }
