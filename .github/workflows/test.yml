@@ -9,3 +9,31 @@ jobs:
   build:
     name: Build
     uses: ./.github/workflows/build.yml
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download
+        uses: actions/download-artifact@v4
+
+      - name: Get Version
+        run: |
+          . ./tools/vars.sh
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Generate Changelog
+        run: |
+          ./tools/changelog.sh > changelog.md
+
+      - name: Test
+        run: |
+          echo "Version: $VERSION"
+          echo
+          cat changelog.md
+
+      - name: Check artifacts
+        run:
+          find -name "*.tar.zst*"

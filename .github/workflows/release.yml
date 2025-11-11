@@ -23,15 +23,9 @@ jobs:
         uses: actions/download-artifact@v4
 
       - name: Get Version
-        run: echo "VERSION=$(./tools/latest.sh)" >> $GITHUB_ENV
-
-      # - name: Delete Previous Release
-      #   run: |
-      #     gh release delete "v${{ env.VERSION }}" --repo "${{ github.repository }}" --cleanup-tag -y
-      #     sleep 5
-      #   env:
-      #     GH_TOKEN: "${{ github.token }}"
-      #   continue-on-error: true
+        run: |
+          . ./tools/vars.sh
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
 
       - name: Generate Changelog
         run: |
@@ -49,5 +43,8 @@ jobs:
             android/*.tar.zst*
             macos-*/*.tar.zst*
             linux-*/*.tar.zst*
+            freebsd-*/*.tar.zst*
+            openbsd-*/*.tar.zst*
+            solaris-*/*.tar.zst*
 
           make_latest: true
