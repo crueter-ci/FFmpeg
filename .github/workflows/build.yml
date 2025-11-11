@@ -156,8 +156,6 @@ jobs:
             chmod a+x ./tools/build.sh
 
             ./deps/omnios.sh
-
-            alias make=gmake
             ./tools/build.sh
 
       - name: Build (FreeBSD)
@@ -174,8 +172,6 @@ jobs:
 
             ./deps/freebsd.sh
 
-            alias gcc=gcc15
-            alias g++=g++15
             bash -e ./tools/build.sh
 
       - name: Build (OpenBSD)
@@ -192,7 +188,7 @@ jobs:
 
             ./deps/openbsd.sh
 
-            alias gcc=egcc
+            # OpenBSD compiler situation is sad
             bash -e ./tools/build.sh
 
       - name: Upload Artifacts

@@ -67,7 +67,7 @@ DXVA_ACCEL=(--enable-dxva2 --enable-hwaccel={h264,vp9}_dxva2)
 D3D_ACCEL=(--enable-d3d11va --enable-hwaccel={h264,vp9}_d311vda{,2})
 
 case "$PLATFORM" in
-	linux|freebsd)
+	linux)
 		FFmpeg_HWACCEL_FLAGS=(
 			"${VULKAN_ACCEL[@]}"
 			"${VAAPI_ACCEL[@]}"
@@ -75,13 +75,30 @@ case "$PLATFORM" in
         )
 		SUFFIX=so
 		;;
+	freebsd)
+		FFmpeg_HWACCEL_FLAGS=(
+			"${VULKAN_ACCEL[@]}"
+			"${VAAPI_ACCEL[@]}"
+			"${NVDEC_ACCEL[@]}"
+
+			--cc=gcc15
+			--cc=g++15
+        )
+		SUFFIX=so
+		;;
 	openbsd)
 		FFmpeg_HWACCEL_FLAGS=(
 			"${VULKAN_ACCEL[@]}"
+
+			--cc=egcc
+			--cc=eg++
         )
 		SUFFIX=so
 		;;
 	solaris)
+		FFmpeg_HWACCEL_FLAGS=(
+			"${VULKAN_ACCEL[@]}"
+        )
 		SUFFIX=so
 		;;
 	macos)
@@ -96,6 +113,11 @@ case "$PLATFORM" in
 			"${VULKAN_ACCEL[@]}"
 			"${DXVA_ACCEL[@]}"
 			"${D3D_ACCEL[@]}"
+
+			--toolchain=msvc
+			--arch="$ARCH"
+			--target-os=win64
+			--extra-cflags="-I\"$VULKAN_SDK/include\""
 		)
 
 		FFmpeg_HWACCEL_FLAGS+=(--extra-cflags="-I\"$FFNVCODEC_DIR/include\"")
@@ -129,33 +151,30 @@ configure() {
 
 	msvc && [ "$ARCH" = amd64 ] && pkg-config --cflags ffnvcodec
 
-	if msvc; then
-		FFmpeg_HWACCEL_FLAGS+=(
-			--toolchain=msvc
-			--arch="$ARCH"
-			--target-os=win64
-			--extra-cflags="-I\"$VULKAN_SDK/include\""
-		)
-	fi
-
-	./configure \
-        --disable-avdevice \
-        --disable-avformat \
-        --disable-doc \
-        --disable-everything \
-        --disable-ffmpeg \
-        --disable-ffprobe \
-        --disable-network \
-        --disable-swresample \
-        --enable-decoder=h264 \
-        --enable-decoder=vp8 \
-        --enable-decoder=vp9 \
-		--enable-static \
-		--disable-shared \
-        --enable-filter=yadif,scale \
-        --enable-pic \
-        --prefix=/ \
+	# shellcheck disable=SC2054
+	CONFIGURE_FLAGS=(
+		--disable-avdevice
+        --disable-avformat
+        --disable-doc
+        --disable-everything
+        --disable-ffmpeg
+        --disable-ffprobe
+        --disable-network
+        --disable-swresample
+        --enable-decoder=h264
+        --enable-decoder=vp8
+        --enable-decoder=vp9
+		--enable-static
+		--disable-shared
+        --enable-filter=yadif,scale
+        --enable-pic
+        --prefix=/
         "${FFmpeg_HWACCEL_FLAGS[@]}"
+	)
+
+	echo "-- Configure flags: ${CONFIGURE_FLAGS[*]}"
+
+	./configure "${CONFIGURE_FLAGS[@]}"
 }
 
 build() {
@@ -180,7 +199,7 @@ copy_build_artifacts() {
     echo "-- Copying artifacts..."
     mkdir -p "$OUT_DIR"
 
-    make install DESTDIR="${OUT_DIR}"
+    $MAKE install DESTDIR="${OUT_DIR}"
     rm -rf "$OUT_DIR"/{share,lib/pkgconfig}
 }
 
