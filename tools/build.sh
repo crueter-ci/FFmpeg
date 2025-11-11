@@ -166,7 +166,7 @@ copy_build_artifacts() {
 
 	if [ "$PLATFORM" = "solaris" ]; then
 		mkdir -p "$OUT_DIR"/lib
-		find "$BUILD_DIR" -name "*.a" -exec cp {} "$OUT_DIR"/lib \;
+		find . -name "*.a" -exec cp {} "$OUT_DIR"/lib \;
 	else
     	$MAKE install-libs DESTDIR="${OUT_DIR}"
 	fi
