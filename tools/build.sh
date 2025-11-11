@@ -100,8 +100,8 @@ case "$PLATFORM" in
 esac
 
 FFmpeg_HWACCEL_FLAGS+=(
-	--cc=clang
-	--cxx=clang++
+	--cc="$CC"
+	--cxx="$CXX"
 )
 
 ## Build Functions ##
