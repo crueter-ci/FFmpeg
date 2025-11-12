@@ -59,10 +59,15 @@ elseif(WIN32)
         set_target_properties(${LIB} PROPERTIES
             INTERFACE_INCLUDE_DIRECTORIES ${FFMPEG_INCLUDE_DIR}
         )
+        if (MSVC)
+            set(libname ${LIB}.lib)
+        elseif(MINGW)
+            set(libname lib${LIB}.a)
+        endif()
 
         if (NOT BUILD_SHARED_LIBS)
             set_target_properties(${LIB} PROPERTIES
-                IMPORTED_LOCATION ${FFMPEG_LIB_DIR}/${LIB}.lib
+                IMPORTED_LOCATION ${FFMPEG_LIB_DIR}/${libname}
             )
         endif()
 
