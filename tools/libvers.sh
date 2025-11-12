@@ -5,17 +5,17 @@ AVUTIL_VER=$(grep '#define LIBAVUTIL_VERSION_MAJOR' libavutil/version.h | sed 's
 SWSCALE_VER=$(grep '#define LIBSWSCALE_VERSION_MAJOR' libswscale/version_major.h | sed 's/.* //g')
 AVFILTER_VER=$(grep '#define LIBAVFILTER_VERSION_MAJOR' libavfilter/version_major.h | sed 's/.* //g')
 
-echo "$AVCODEC_VER"
-echo "$AVUTIL_VER"
-echo "$AVFILTER_VER"
-echo "$SWSCALE_VER"
+echo "libavcodec-$AVCODEC_VER"
+echo "avutil-$AVUTIL_VER"
+echo "avfilter-$AVFILTER_VER"
+echo "swscale-$SWSCALE_VER"
 
-sed "s/AVCODEC_VER/$AVCODEC_VER/"   "$ROOTDIR"/CMakeLists.txt.in   > "$ROOTDIR"/CMakeLists.txt.in.1
-sed "s/AVUTIL_VER/$AVUTIL_VER/"     "$ROOTDIR"/CMakeLists.txt.in.1 > "$ROOTDIR"/CMakeLists.txt.in.2
-sed "s/SWSCALE_VER/$SWSCALE_VER/"   "$ROOTDIR"/CMakeLists.txt.in.2 > "$ROOTDIR"/CMakeLists.txt.in.3
-sed "s/AVFILTER_VER/$AVFILTER_VER/" "$ROOTDIR"/CMakeLists.txt.in.3 > "$ROOTDIR"/CMakeLists.txt
+sed "s/avcodec-.*\.dll/avcodec-$AVCODEC_VER.dll/"    "$ROOTDIR"/CMakeLists.txt   > "$ROOTDIR"/CMakeLists.txt.1
+sed "s/avutil-.*\.dll/avutil-$AVUTIL_VER.dll/"       "$ROOTDIR"/CMakeLists.txt.1 > "$ROOTDIR"/CMakeLists.txt.2
+sed "s/swscale-.*\.dll/swscale-$SWSCALE_VER.dll/"    "$ROOTDIR"/CMakeLists.txt.2 > "$ROOTDIR"/CMakeLists.txt.3
+sed "s/avfilter-.*\.dll/avfilter-$AVFILTER_VER.dll/" "$ROOTDIR"/CMakeLists.txt.3 > "$ROOTDIR"/CMakeLists.txt
 
-rm "$ROOTDIR"/CMakeLists.txt.in.*
+rm "$ROOTDIR"/CMakeLists.txt.*
 
 export AVCODEC_VER
 export AVUTIL_VER
