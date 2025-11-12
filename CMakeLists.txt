@@ -62,7 +62,7 @@ elseif(WIN32)
 
         if (NOT BUILD_SHARED_LIBS)
             set_target_properties(${LIB} PROPERTIES
-                IMPORTED_LOCATION ${FFMPEG_LIB_DIR}/lib${LIB}.a
+                IMPORTED_LOCATION ${FFMPEG_LIB_DIR}/${LIB}.lib
             )
         endif()
 
