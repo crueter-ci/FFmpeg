@@ -31,11 +31,17 @@ sed -i 's|arthenica/libvpx|webmproject/libvpx|' scripts/source.sh
 sed -i 's/v1.13.0/v1.13.1/' scripts/source.sh
 sed -i 's/v0.8.0/v0.10.1/' scripts/source.sh
 
+# cmake
+# TODO: make this all posix-compliant?
+find . -name "*CMakeLists.*" -exec sed -i 's/cmake_minimum_required.*/cmake_minimum_required(VERSION 3.10)/' {} \;
+
 # fixes
 sed -i 's/--disable-static //' scripts/android/ffmpeg.sh
 sed -i 's/emms.h/emms.asm/g' scripts/android/ffmpeg.sh
 sed -i '/disable-postproc/d' scripts/android/ffmpeg.sh
 sed -i '20i #include <string.h>' android/ffmpeg-kit-android-lib/src/main/cpp/ffprobekit.c
+
+grep -re 'cmake_minimum_required'
 
 echo "-- Building..."
 
@@ -48,7 +54,7 @@ echo "-- Building..."
     --disable-arm-v7a \
     --disable-x86-64 \
     --disable-x86 \
-    --no-archive || cat build.log
+    --no-archive || { cat build.log; grep -re 'cmake_minimum_required'; }
 
 echo "-- Packaging..."
 
