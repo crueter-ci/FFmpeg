@@ -139,9 +139,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Disable man-db updates
-        run: sudo rm /var/lib/man-db/auto-update
-
       - name: Build (Solaris)
         if: matrix.platform == 'solaris'
         uses: vmactions/omnios-vm@v1
