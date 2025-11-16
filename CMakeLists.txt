@@ -114,6 +114,11 @@ else() # Unix
     endforeach()
 endif()
 
+if (MINGW)
+    find_library(ICONV_LIBRARY iconv REQUIRED)
+    target_link_libraries(ffmpeg INTERFACE ${ICONV_LIBRARY})
+endif()
+
 add_library(FFmpeg::FFmpeg ALIAS ffmpeg)
 
 set(FFmpeg_LIBRARY_DIR "${FFMPEG_LIB_DIR}" PARENT_SCOPE)
