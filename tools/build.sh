@@ -71,6 +71,9 @@ case "$PLATFORM" in
 		FFmpeg_HWACCEL_FLAGS=(
             --enable-videotoolbox
             --disable-iconv
+
+			--extra-cflags="-mmacosx-version-min=11.0"
+			--extra-ldflags="-mmacosx-version-min=11.0"
         )
 		;;
 	windows)

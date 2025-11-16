@@ -8,6 +8,7 @@
 ROOTDIR="$PWD"
 : "${OUT_DIR:=$PWD/out}"
 : "${PLATFORM:?-- You must supply the PLATFORM environment variable.}"
+: "${MACOSX_DEPLOYMENT_TARGET:=11.0}"
 
 ## Command Checks ##
 
