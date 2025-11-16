@@ -48,7 +48,7 @@ echo "-- Building..."
     --disable-arm-v7a \
     --disable-x86-64 \
     --disable-x86 \
-    --no-archive
+    --no-archive || cat build.log
 
 echo "-- Packaging..."
 
