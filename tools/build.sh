@@ -59,6 +59,9 @@ NVDEC_ACCEL=(--enable-cuvid
 VAAPI_ACCEL=(--enable-vaapi --enable-hwaccel={h264,vp8,vp9}_vaapi)
 DXVA_ACCEL=(--enable-dxva2 --enable-hwaccel={h264,vp9}_dxva2)
 D3D_ACCEL=(--enable-d3d11va --enable-hwaccel={h264,vp9}_d311vda{,2})
+MEDIACODEC_ACCEL=(--enable-mediacodec
+				  --enable-jni
+				  --enable-decoder={h264,vp8,vp9}_mediacodec)
 
 case "$PLATFORM" in
 	linux)
@@ -86,8 +89,7 @@ case "$PLATFORM" in
 		;;
 	android)
 		PLATFORM_FLAGS=(
-			--enable-mediacodec
-			--enable-jni
+			"${MEDIACODEC_ACCEL[@]}"
 
 			--extra-ldflags="-Wl,-z,max-page-size=16384,--hash-style=both"
 
