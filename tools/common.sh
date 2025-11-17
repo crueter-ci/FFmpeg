@@ -95,11 +95,7 @@ package() {
     echo "-- Packaging..."
     mkdir -p "$ROOTDIR/artifacts"
 
-	if [ "$PLATFORM" = android ]; then
-		TARBALL=$FILENAME-$PLATFORM-$VERSION.tar
-	else
-		TARBALL=$FILENAME-$PLATFORM-$ARCH-$VERSION.tar
-	fi
+	TARBALL=$FILENAME-$PLATFORM-$ARCH-$VERSION.tar
 
     cd "$OUT_DIR"
     tar cf "$ROOTDIR/artifacts/$TARBALL" ./*
@@ -135,6 +131,10 @@ case "$PLATFORM" in
 	solaris)
 		MAKE="gmake"
 		;;
+	android)
+		CC=clang
+		CXX=clang++
+		;;
 	macos)
 		SHARED_SUFFIX=dylib
 		CC=clang
@@ -167,3 +167,15 @@ export STATIC_SUFFIX
 export CC
 export CXX
 export MAKE
+
+android_paths() {
+	export ANDROID_NDK_HOME="$ANDROID_NDK_ROOT"
+
+    for host in linux-x86_64 linux-x86 darwin-x86_64 darwin-x86 windows-x86_64; do
+        if [ -d "$ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/$host/bin" ]; then
+            ANDROID_TOOLCHAIN="$ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/$host/bin"
+            export PATH="$ANDROID_TOOLCHAIN:$PATH"
+            break
+        fi
+    done
+}

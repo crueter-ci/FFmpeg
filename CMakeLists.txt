@@ -25,32 +25,7 @@ set_target_properties(ffmpeg PROPERTIES
     INTERFACE_INCLUDE_DIRECTORIES ${FFMPEG_INCLUDE_DIR}
 )
 
-if (ANDROID)
-    # conditional libs
-    foreach (LIB avcodec avdevice avfilter avformat avutil postproc swresample
-             swscale)
-        add_library(${LIB} ${LIB_TYPE} IMPORTED GLOBAL)
-        set_target_properties(${LIB} PROPERTIES
-            IMPORTED_LOCATION ${FFMPEG_LIB_DIR}/lib${LIB}.${LIB_SUFFIX}
-            INTERFACE_INCLUDE_DIRECTORIES ${FFMPEG_INCLUDE_DIR}
-        )
-
-        add_library(FFmpeg::${LIB} ALIAS ${LIB})
-        target_link_libraries(ffmpeg INTERFACE FFmpeg::${LIB})
-    endforeach()
-
-    # always-static
-    foreach(LIB vpx x264)
-        add_library(${LIB} STATIC IMPORTED GLOBAL)
-        set_target_properties(${LIB} PROPERTIES
-            IMPORTED_LOCATION ${FFMPEG_LIB_DIR}/lib${LIB}.a
-            INTERFACE_INCLUDE_DIRECTORIES ${FFMPEG_INCLUDE_DIR}
-        )
-
-        add_library(FFmpeg::${LIB} ALIAS ${LIB})
-        target_link_libraries(ffmpeg INTERFACE FFmpeg::${LIB})
-    endforeach()
-elseif(WIN32)
+if(WIN32)
     foreach (LIB swscale avcodec avfilter avutil)
         add_library(${LIB} ${LIB_TYPE} IMPORTED GLOBAL)
         add_library(FFmpeg::${LIB} ALIAS ${LIB})

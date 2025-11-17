@@ -8,8 +8,25 @@ set -e
 
 ## Buildtime/Input Variables ##
 
-: "${ARCH:=amd64}"
+android() {
+	[ "$PLATFORM" = android ]
+}
+
+DEFAULT_ARCH=amd64
+if android; then
+	DEFAULT_ARCH=aarch64
+	: "${ANDROID_NDK_ROOT:?-- You must supply the ANDROID_NDK_ROOT environment variable.}"
+	: "${ANDROID_API:=23}"
+	android_paths
+fi
+
+: "${ARCH:=$DEFAULT_ARCH}"
 : "${BUILD_DIR:=build}"
+
+if android; then
+	CC="${ARCH}"-linux-android"${ANDROID_API}"-clang
+	CXX="${ARCH}"-linux-android"${ANDROID_API}"-clang++
+fi
 
 ## Platform Stuff ##
 
@@ -42,24 +59,27 @@ NVDEC_ACCEL=(--enable-cuvid
 VAAPI_ACCEL=(--enable-vaapi --enable-hwaccel={h264,vp8,vp9}_vaapi)
 DXVA_ACCEL=(--enable-dxva2 --enable-hwaccel={h264,vp9}_dxva2)
 D3D_ACCEL=(--enable-d3d11va --enable-hwaccel={h264,vp9}_d311vda{,2})
+MEDIACODEC_ACCEL=(--enable-mediacodec
+				  --enable-jni
+				  --enable-decoder={h264,vp8,vp9}_mediacodec)
 
 case "$PLATFORM" in
 	linux)
-		FFmpeg_HWACCEL_FLAGS=(
+		PLATFORM_FLAGS=(
 			"${VULKAN_ACCEL[@]}"
 			"${VAAPI_ACCEL[@]}"
 			"${NVDEC_ACCEL[@]}"
         )
 		;;
 	freebsd)
-		FFmpeg_HWACCEL_FLAGS=(
+		PLATFORM_FLAGS=(
 			"${VULKAN_ACCEL[@]}"
 			"${VAAPI_ACCEL[@]}"
 			"${NVDEC_ACCEL[@]}"
         )
 		;;
 	openbsd)
-		FFmpeg_HWACCEL_FLAGS=(
+		PLATFORM_FLAGS=(
 			"${VULKAN_ACCEL[@]}"
 
 			--extra-cflags="-I/usr/local/include"
@@ -67,8 +87,20 @@ case "$PLATFORM" in
 		;;
 	solaris)
 		;;
+	android)
+		PLATFORM_FLAGS=(
+			"${MEDIACODEC_ACCEL[@]}"
+
+			--extra-ldflags="-Wl,-z,max-page-size=16384,--hash-style=both"
+			--strip=llvm-strip
+
+			--enable-cross-compile
+			--target-os=android
+			--arch="$ARCH"
+		)
+		;;
 	macos)
-		FFmpeg_HWACCEL_FLAGS=(
+		PLATFORM_FLAGS=(
             --enable-videotoolbox
             --disable-iconv
 
@@ -77,7 +109,7 @@ case "$PLATFORM" in
         )
 		;;
 	windows)
-		FFmpeg_HWACCEL_FLAGS=(
+		PLATFORM_FLAGS=(
 			"${VULKAN_ACCEL[@]}"
 			"${DXVA_ACCEL[@]}"
 			"${D3D_ACCEL[@]}"
@@ -88,21 +120,21 @@ case "$PLATFORM" in
 			--extra-cflags="-I\"$VULKAN_SDK/include\""
 		)
 
-		FFmpeg_HWACCEL_FLAGS+=(--extra-cflags="-I\"$FFNVCODEC_DIR/include\"")
-		[ "$ARCH" = amd64 ] && FFmpeg_HWACCEL_FLAGS+=("${NVDEC_ACCEL[@]}")
+		PLATFORM_FLAGS+=(--extra-cflags="-I\"$FFNVCODEC_DIR/include\"")
+		[ "$ARCH" = amd64 ] && PLATFORM_FLAGS+=("${NVDEC_ACCEL[@]}")
 		;;
 	mingw)
-		FFmpeg_HWACCEL_FLAGS=(
+		PLATFORM_FLAGS=(
 			"${VULKAN_ACCEL[@]}"
 			"${DXVA_ACCEL[@]}"
 			"${D3D_ACCEL[@]}"
 		)
 
-		[ "$ARCH" = amd64 ] && FFmpeg_HWACCEL_FLAGS+=("${NVDEC_ACCEL[@]}")
+		[ "$ARCH" = amd64 ] && PLATFORM_FLAGS+=("${NVDEC_ACCEL[@]}")
 		;;
 esac
 
-FFmpeg_HWACCEL_FLAGS+=(
+PLATFORM_FLAGS+=(
 	--cc="$CC"
 	--cxx="$CXX"
 )
@@ -118,8 +150,13 @@ configure() {
 
 	msvc && [ "$ARCH" = amd64 ] && pkg-config --cflags ffnvcodec
 
+	# TODO: WINDOWS SHARED
+	if ! msvc && ! msys; then
+		CONFIGURE_FLAGS+=(--enable-shared)
+	fi
+
 	# shellcheck disable=SC2054
-	CONFIGURE_FLAGS=(
+	CONFIGURE_FLAGS+=(
 		--disable-avdevice
         --disable-avformat
         --disable-doc
@@ -132,12 +169,11 @@ configure() {
         --enable-decoder=vp8
         --enable-decoder=vp9
 		--enable-static
-		--disable-shared
         --enable-filter=yadif,scale
         --enable-pic
 		--enable-small
         --prefix=/
-        "${FFmpeg_HWACCEL_FLAGS[@]}"
+        "${PLATFORM_FLAGS[@]}"
 	)
 
 	echo "-- Configure flags: ${CONFIGURE_FLAGS[*]}"
