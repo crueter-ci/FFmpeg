@@ -92,6 +92,7 @@ case "$PLATFORM" in
 			"${MEDIACODEC_ACCEL[@]}"
 
 			--extra-ldflags="-Wl,-z,max-page-size=16384,--hash-style=both"
+			--strip=llvm-strip
 
 			--enable-cross-compile
 			--target-os=android

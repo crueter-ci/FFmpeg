@@ -8,7 +8,7 @@ env:
 
 jobs:
   windows:
-    name: "${{ matrix.platform }} ${{ matrix.os.arch }}"
+    name: "${{ matrix.platform }} (${{ matrix.os.arch }})"
     runs-on: ${{ matrix.os.runs-on }}
     strategy:
       fail-fast: false
@@ -82,7 +82,7 @@ jobs:
           path: artifacts/*
 
   android:
-    name: Android
+    name: "Android (${{ matrix.arch }})"
     runs-on: ubuntu-latest
 
     strategy:
@@ -103,11 +103,14 @@ jobs:
           ndk-version: r25c
           link-to-sdk: true
 
+      - name: Install deps
+        if: matrix.arch == 'x86_64'
+        run: sudo apt install -y nasm
+
       - name: Build
         shell: bash
         env:
           ANDROID_NDK_ROOT: ${{ steps.setup-ndk.outputs.ndk-path }}
-
         run: |
           chmod a+x ./tools/build.sh
           ./tools/build.sh
@@ -119,7 +122,7 @@ jobs:
           path: artifacts/*
 
   unix:
-    name: "${{ matrix.platform }} ${{ matrix.arch }}"
+    name: "${{ matrix.platform }} (${{ matrix.arch }})"
     runs-on: ${{ matrix.runs-on }}
     strategy:
       fail-fast: false
@@ -203,7 +206,7 @@ jobs:
           path: artifacts/*
 
   linux:
-    name: "Linux ${{ matrix.arch }}"
+    name: "Linux (${{ matrix.arch }})"
     runs-on: ${{ matrix.runs-on }}
     container: ghcr.io/pkgforge-dev/archlinux:latest
     strategy:
@@ -236,7 +239,7 @@ jobs:
           path: artifacts/*
 
   macos:
-    name: "macOS"
+    name: "macOS (arm64)"
     runs-on: macos-latest
     strategy:
       fail-fast: false
