@@ -84,8 +84,15 @@ jobs:
   android:
     name: Android
     runs-on: ubuntu-latest
+    matrix:
+      arch: [x86_64, aarch64]
+
     strategy:
       fail-fast: false
+
+    env:
+      PLATFORM: android
+      ARCH: ${{ matrix.arch }}
 
     steps:
       - uses: actions/checkout@v4
@@ -94,6 +101,7 @@ jobs:
         id: setup-ndk
         with:
           ndk-version: r25c
+          link-to-sdk: true
 
       - name: Build
         shell: bash
@@ -101,13 +109,13 @@ jobs:
           ANDROID_NDK_ROOT: ${{ steps.setup-ndk.outputs.ndk-path }}
 
         run: |
-          chmod a+x ./android/build.sh
-          ./android/build.sh
+          chmod a+x ./tools/build.sh
+          ./tools/build.sh
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: android
+          name: android-${{ matrix.arch }}
           path: artifacts/*
 
   unix:
