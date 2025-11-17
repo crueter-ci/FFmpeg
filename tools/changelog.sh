@@ -30,7 +30,8 @@ echo
 echo "| Build | sha1sum | sha256sum | sha512sum |"
 echo "| ----- | ------- | --------- | --------- |"
 
-artifact Android android
+artifact "Android (aarch64)" android-aarch64
+artifact "Android (x86_64)" android-x86_64
 artifact "Windows (amd64)" windows-amd64
 artifact "Windows (arm64)" windows-arm64
 artifact "MinGW (amd64)" mingw-amd64

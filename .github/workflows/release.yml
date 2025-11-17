@@ -40,7 +40,7 @@ jobs:
           files: |
             windows-*/*.tar.zst*
             mingw-*/*.tar.zst*
-            android/*.tar.zst*
+            android-*/*.tar.zst*
             macos-*/*.tar.zst*
             linux-*/*.tar.zst*
             freebsd-*/*.tar.zst*
