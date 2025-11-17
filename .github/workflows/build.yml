@@ -84,11 +84,11 @@ jobs:
   android:
     name: Android
     runs-on: ubuntu-latest
-    matrix:
-      arch: [x86_64, aarch64]
 
     strategy:
       fail-fast: false
+      matrix:
+        arch: [x86_64, aarch64]
 
     env:
       PLATFORM: android
