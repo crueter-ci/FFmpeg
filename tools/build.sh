@@ -155,6 +155,10 @@ configure() {
 		CONFIGURE_FLAGS+=(--enable-shared)
 	fi
 
+	# FFmpeg's x86_64 assembly on Android sucks
+	# Remember folks: this is why you use C :)
+	android && [ "$ARCH" = "x86_64" ] && CONFIGURE_FLAGS+=(--disable-asm)
+
 	# shellcheck disable=SC2054
 	CONFIGURE_FLAGS+=(
 		--disable-avdevice
@@ -170,8 +174,8 @@ configure() {
         --enable-decoder=vp9
 		--enable-static
         --enable-filter=yadif,scale
-        --enable-pic
 		--enable-small
+		--enable-pic
         --prefix=/
         "${PLATFORM_FLAGS[@]}"
 	)
