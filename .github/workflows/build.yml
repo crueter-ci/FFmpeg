@@ -3,9 +3,6 @@ name: CI
 on:
   workflow_call:
 
-env:
-  VERSION: "8.0"
-
 jobs:
   windows:
     name: "${{ matrix.platform }} (${{ matrix.os.arch }})"
@@ -97,20 +94,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: nttld/setup-ndk@v1
-        id: setup-ndk
-        with:
-          ndk-version: r25c
-          link-to-sdk: true
-
       - name: Install deps
         if: matrix.arch == 'x86_64'
         run: sudo apt install -y nasm
 
       - name: Build
         shell: bash
-        env:
-          ANDROID_NDK_ROOT: ${{ steps.setup-ndk.outputs.ndk-path }}
         run: |
           chmod a+x ./tools/build.sh
           ./tools/build.sh
