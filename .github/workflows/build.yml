@@ -228,7 +228,7 @@ jobs:
           path: artifacts/*
 
   macos:
-    name: "macOS (arm64)"
+    name: "macOS (universal)"
     runs-on: macos-latest
     strategy:
       fail-fast: false

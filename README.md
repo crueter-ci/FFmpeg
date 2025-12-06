@@ -1,10 +1,9 @@
 # FFmpeg CI
 
-Scripts and CI for debloated FFmpeg, containing only h264, vp8, vp9, and hwaccel support
+Scripts and CI for debloated FFmpeg, containing only h264, vp8, vp9, and hwaccel support.
 
 - [**Releases**](https://github.com/crueter-ci/FFmpeg/releases)
-- Shared libraries (`BUILD_SHARED_LIBS=ON`) are not supported.
-- macOS is currently arm64-only.
+- Shared libraries (`BUILD_SHARED_LIBS=ON`) are supported.
 - CMake target: `FFmpeg::FFmpeg`
 
 ## Building and Usage
