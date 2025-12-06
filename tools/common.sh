@@ -1,4 +1,4 @@
-#!/bin/sh -e
+#!/bin/bash -e
 
 ## Build variables ##
 
@@ -57,6 +57,13 @@ extract() {
 		*.tar.*) tar xf "$ROOTDIR/$ARTIFACT" >/dev/null ;;
 		*.7z) 7z x "$ROOTDIR/$ARTIFACT" >/dev/null ;;
 	esac
+
+	# FUCK YOU APPLE
+	pushd "$DIRECTORY"
+
+	find libavutil -name "*.h" -exec sed -i '' 's/if HAVE_UNISTD_H/if HAVE_UNISTD_H || defined(__APPLE__)' {} \; 
+
+	popd
 }
 
 # generate sha1, 256, and 512 sums for a file
