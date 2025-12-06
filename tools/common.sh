@@ -1,10 +1,12 @@
-#!/bin/sh -e
+#!/bin/bash -e
 
 ## Build variables ##
 
 # shellcheck disable=SC1091
 . ./tools/vars.sh
 
+# TODO: autodetect platform
+# but make android manual specification
 ROOTDIR="$PWD"
 : "${OUT_DIR:=$PWD/out}"
 : "${PLATFORM:?-- You must supply the PLATFORM environment variable.}"
@@ -55,6 +57,16 @@ extract() {
 		*.tar.*) tar xf "$ROOTDIR/$ARTIFACT" >/dev/null ;;
 		*.7z) 7z x "$ROOTDIR/$ARTIFACT" >/dev/null ;;
 	esac
+
+	# FUCK YOU APPLE
+	pushd "$DIRECTORY"
+
+	find libavutil -name "*.c" | while read -r file; do
+		sed 's/if HAVE_UNISTD_H/if HAVE_UNISTD_H || defined(__APPLE__)/' "$file" > "$file".bak
+		mv "$file".bak "$file"
+	done
+
+	popd
 }
 
 # generate sha1, 256, and 512 sums for a file

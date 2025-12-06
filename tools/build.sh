@@ -58,10 +58,12 @@ NVDEC_ACCEL=(--enable-cuvid
 			--enable-hwaccel={h264,vp8,vp8}_nvdec)
 VAAPI_ACCEL=(--enable-vaapi --enable-hwaccel={h264,vp8,vp9}_vaapi)
 DXVA_ACCEL=(--enable-dxva2 --enable-hwaccel={h264,vp9}_dxva2)
-D3D_ACCEL=(--enable-d3d11va --enable-hwaccel={h264,vp9}_d311vda{,2})
+D3D_ACCEL=(--enable-d3d11va --enable-hwaccel={h264,vp9}_d3d11va{,2} --enable-d3d12va --enable-hwaccel={h264,vp9}_d3d12va)
 MEDIACODEC_ACCEL=(--enable-mediacodec
 				  --enable-jni
 				  --enable-decoder={h264,vp8,vp9}_mediacodec)
+VIDEOTOOLBOX_ACCEL=(--enable-videotoolbox --enable-hwaccel={h264,vp9}_videotoolbox)
+AMF_ACCEL=(--enable-amf --enable-decoder={h264,vp9}_amf)
 
 case "$PLATFORM" in
 	linux)
@@ -69,6 +71,7 @@ case "$PLATFORM" in
 			"${VULKAN_ACCEL[@]}"
 			"${VAAPI_ACCEL[@]}"
 			"${NVDEC_ACCEL[@]}"
+			"${AMF_ACCEL[@]}"
         )
 		;;
 	freebsd)
@@ -101,7 +104,7 @@ case "$PLATFORM" in
 		;;
 	macos)
 		PLATFORM_FLAGS=(
-            --enable-videotoolbox
+			"${VIDEOTOOLBOX_ACCEL[@]}"
             --disable-iconv
 
 			--extra-cflags="-mmacosx-version-min=11.0 -arch arm64 -arch x86_64"
@@ -129,6 +132,7 @@ case "$PLATFORM" in
 			"${VULKAN_ACCEL[@]}"
 			"${DXVA_ACCEL[@]}"
 			"${D3D_ACCEL[@]}"
+			"${AMF_ACCEL[@]}"
 		)
 
 		[ "$ARCH" = amd64 ] && PLATFORM_FLAGS+=("${NVDEC_ACCEL[@]}")
@@ -151,9 +155,14 @@ configure() {
 
 	msvc && [ "$ARCH" = amd64 ] && pkg-config --cflags ffnvcodec
 
-	# TODO: WINDOWS SHARED
 	if ! msvc && ! msys; then
-		CONFIGURE_FLAGS+=(--enable-shared)
+		CONFIGURE_FLAGS+=(--enable-shared --enable-static)
+	else
+		if [ "$STATIC" = "true" ]; then
+			CONFIGURE_FLAGS+=(--enable-static)
+		else
+			CONFIGURE_FLAGS+=(--enable-shared)
+		fi
 	fi
 
 	# FFmpeg's x86_64 assembly on Android sucks
@@ -223,30 +232,33 @@ copy_build_artifacts() {
 
 
 ## Cleanup ##
-# rm -rf "$BUILD_DIR" "$OUT_DIR"
-# mkdir -p "$BUILD_DIR" "$OUT_DIR"
+rm -rf "$BUILD_DIR" "$OUT_DIR"
+mkdir -p "$BUILD_DIR" "$OUT_DIR"
 
 # ## Download + Extract ##
-# download
+download
 cd "$BUILD_DIR"
-# extract
+extract
 
 ## Configure ##
 cd "$DIRECTORY"
+STATIC=true
 configure
 
 ## Build ##
 build
+copy_build_artifacts
 
-# TODO: We don't need shared ffmpeg for now
-# Their stuff sucks and doesn't let you build both at once on Windows only
-# KSJKSDNFKJSDBFJKNSDBJKFBSDJKFB
+# Windows needs separate build step for shared
+if msvc || msys; then
+	STATIC=false
+	configure
+	build
+	copy_build_artifacts
+fi
 
 ## Package ##
-copy_build_artifacts
 copy_cmake
-
-# strip_libs
 package
 
 echo "-- Done! Artifacts are in $ROOTDIR/artifacts, raw lib/include data is in $OUT_DIR"
