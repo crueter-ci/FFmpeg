@@ -3,8 +3,8 @@
 ## Common variables ##
 
 # In some projects you will want to fetch latest from gh/fj api
-VERSION="8.0"
-export COMMIT="ddf443f1e99c94b5e3569904027eba868691b86b"
+VERSION="8.0.1"
+export COMMIT="5e56937b742b9110d38ce6fa4c7bdf2d5c355df4"
 export PRETTY_NAME="FFmpeg"
 export FILENAME="ffmpeg"
 export REPO="FFmpeg/FFmpeg"
