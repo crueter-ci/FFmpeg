@@ -16,6 +16,7 @@ See the [spec](https://github.com/crueter-ci/spec).
 All: GNU make, pkg-config, curl, zstd, unzip, bash, working compiler
 
 - `amd64` only: nasm
+- Linux, MinGW: amf-headers
 - Linux, FreeBSD, MinGW: ffnvcodec-headers, vulkan-headers
 - OpenBSD: vulkan-headers
 - *Dependencies are handled automatically on MSVC*

@@ -57,7 +57,7 @@ jobs:
             git make unzip pkgconf diffutils
           pacboy: >-
             toolchain:p vulkan-devel:p pkg-config:p
-            nasm:p ffnvcodec-headers:p
+            nasm:p ffnvcodec-headers:p amf-headers:p
 
       - name: Build (MSYS)
         if: matrix.platform == 'mingw'

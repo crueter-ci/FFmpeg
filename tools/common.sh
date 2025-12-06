@@ -5,6 +5,8 @@
 # shellcheck disable=SC1091
 . ./tools/vars.sh
 
+# TODO: autodetect platform
+# but make android manual specification
 ROOTDIR="$PWD"
 : "${OUT_DIR:=$PWD/out}"
 : "${PLATFORM:?-- You must supply the PLATFORM environment variable.}"

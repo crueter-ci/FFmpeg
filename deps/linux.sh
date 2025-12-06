@@ -10,4 +10,5 @@ pacman -Syu --needed --noconfirm \
     gcc \
     ffnvcodec-headers \
     vulkan-headers \
-    libva
+    libva \
+	amf-headers
