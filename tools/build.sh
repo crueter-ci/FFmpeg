@@ -104,8 +104,9 @@ case "$PLATFORM" in
             --enable-videotoolbox
             --disable-iconv
 
-			--extra-cflags="-mmacosx-version-min=11.0"
-			--extra-ldflags="-mmacosx-version-min=11.0"
+			--extra-cflags="-mmacosx-version-min=11.0 -arch arm64 -arch x86_64"
+			--extra-ldflags="-mmacosx-version-min=11.0 -arch arm64 -arch x86_64"
+			--disable-asm
         )
 		;;
 	windows)
@@ -222,13 +223,13 @@ copy_build_artifacts() {
 
 
 ## Cleanup ##
-rm -rf "$BUILD_DIR" "$OUT_DIR"
-mkdir -p "$BUILD_DIR" "$OUT_DIR"
+# rm -rf "$BUILD_DIR" "$OUT_DIR"
+# mkdir -p "$BUILD_DIR" "$OUT_DIR"
 
-## Download + Extract ##
-download
+# ## Download + Extract ##
+# download
 cd "$BUILD_DIR"
-extract
+# extract
 
 ## Configure ##
 cd "$DIRECTORY"
