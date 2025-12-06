@@ -61,7 +61,7 @@ extract() {
 	# FUCK YOU APPLE
 	pushd "$DIRECTORY"
 
-	find libavutil -name "*.h" -exec sed -i '' 's/if HAVE_UNISTD_H/if HAVE_UNISTD_H || defined(__APPLE__)' {} \; 
+	find libavutil -name "*.h" -exec sed -i '' 's/if HAVE_UNISTD_H/if HAVE_UNISTD_H || defined(__APPLE__)/' {} \; 
 
 	popd
 }
