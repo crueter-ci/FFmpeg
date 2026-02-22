@@ -24,7 +24,7 @@ if [ "$ARCH" = amd64 ]; then
 
 	mkdir -p "$FFNVCODEC_DIR"
 
-	[ ! -d nv-codec-headers ] && git clone https://git.videolan.org/git/ffmpeg/nv-codec-headers.git
+	[ ! -d nv-codec-headers ] && git clone https://code.ffmpeg.org/FFmpeg/nv-codec-headers.git
 	cd nv-codec-headers
 	git checkout "$FFNVCODEC_VER"
 
