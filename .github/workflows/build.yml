@@ -228,7 +228,7 @@ jobs:
           path: artifacts/*
 
   macos:
-    name: "${{ matrix.platform }} (${{ matrix.os.arch }})"
+    name: "${{ matrix.platform }} (${{ matrix.arch }})"
     runs-on: macos-latest
     strategy:
       fail-fast: false
@@ -264,5 +264,5 @@ jobs:
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.platform }}-${{ matrix.os.arch }}
+          name: ${{ matrix.platform }}-${{ matrix.arch }}
           path: artifacts/*
