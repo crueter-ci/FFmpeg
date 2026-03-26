@@ -112,6 +112,16 @@ case "$PLATFORM" in
 			--disable-asm
         )
 		;;
+	ios)
+		PLATFORM_FLAGS=(
+			"${VIDEOTOOLBOX_ACCEL[@]}"
+            --disable-iconv
+
+			--enable-cross-compile
+			--extra-cflags="-mios-version-min=16.0"
+			--extra-ldflags="-mios-version-min=16.0"
+        )
+		;;
 	windows)
 		PLATFORM_FLAGS=(
 			"${VULKAN_ACCEL[@]}"

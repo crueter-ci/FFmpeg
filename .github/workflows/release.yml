@@ -38,13 +38,6 @@ jobs:
           name: FFmpeg ${{ env.VERSION }}
           tag_name: v${{ env.VERSION }}
           files: |
-            windows-*/*.tar.zst*
-            mingw-*/*.tar.zst*
-            android-*/*.tar.zst*
-            macos-*/*.tar.zst*
-            linux-*/*.tar.zst*
-            freebsd-*/*.tar.zst*
-            openbsd-*/*.tar.zst*
-            solaris-*/*.tar.zst*
+            */*.tar.zst*
 
           make_latest: true

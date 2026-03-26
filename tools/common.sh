@@ -152,6 +152,12 @@ case "$PLATFORM" in
 		CC=clang
 		CXX=clang++
 		;;
+	ios)
+		SHARED_SUFFIX=dylib
+		: "${IOS_TARGET:=iphoneos}"
+		CC="xcrun --sdk $IOS_TARGET clang"
+		CXX="xcrun --sdk $IOS_TARGET clang++"
+		;;
 	windows)
 		SHARED_SUFFIX=dll
 		CC=cl
