@@ -18,9 +18,10 @@ export VULKAN_SDK
 
 if [ "$ARCH" = amd64 ]; then
 	echo "-- Installing ffnvcodec..."
+	echo "Root: $ROOT"
 
 	FFNVCODEC_VER=n13.0.19.0
-	FFNVCODEC_DIR="/usr/local"
+	FFNVCODEC_DIR="$ROOT/usr/local"
 
 	mkdir -p "$FFNVCODEC_DIR"
 

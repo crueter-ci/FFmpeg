@@ -163,10 +163,11 @@ configure() {
 	if msvc && [ "$ARCH" = amd64 ]; then
 		echo "adding ffnvcodec $FFNVCODEC_DIR to pkg config path"
 		export PKG_CONFIG_PATH="$FFNVCODEC_DIR/lib/pkgconfig:$PKG_CONFIG_PATH"
-	fi
-    echo "-- Package config path: $PKG_CONFIG_PATH"
 
-	msvc && [ "$ARCH" = amd64 ] && pkg-config --cflags ffnvcodec
+		pkg-config --cflags ffnvcodec
+	fi
+
+    echo "-- Package config path: $PKG_CONFIG_PATH"
 
 	if ! msvc && ! msys; then
 		CONFIGURE_FLAGS+=(--enable-shared --enable-static)
