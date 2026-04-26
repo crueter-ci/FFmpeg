@@ -91,6 +91,12 @@ case "$PLATFORM" in
 			--target-os=android
 			--arch="$ARCH"
 		)
+
+		# FFmpeg's x86_64 assembly on Android sucks
+		# Remember folks: this is why you use C :)
+		if amd64; then
+			CONFIGURE_FLAGS+=(--disable-asm)
+		fi
 		;;
 	macos)
 		PLATFORM_FLAGS=(
@@ -169,10 +175,6 @@ configure() {
 		fi
 	fi
 
-	# FFmpeg's x86_64 assembly on Android sucks
-	# Remember folks: this is why you use C :)
-	android && [ "$ARCH" = "x86_64" ] && CONFIGURE_FLAGS+=(--disable-asm)
-
 	# shellcheck disable=SC2054
 	CONFIGURE_FLAGS+=(
 		--disable-avdevice
@@ -199,9 +201,11 @@ configure() {
 	if ! ./configure "${CONFIGURE_FLAGS[@]}"; then
 		_end
 
-		_group "Configure failed. Config log:"
-		cat ffbuild/config.log
-		_end
+		if [ -n "$GITHUB_RUN_ID" ]; then
+			_group "Configure failed. Config log:"
+			cat ffbuild/config.log
+			_end
+		fi
 		
 		exit 1
 	fi

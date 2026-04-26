@@ -5,19 +5,17 @@
 export PATH="/usr/local/bin:$PATH"
 : "${DEPS_DIR:=build/deps}"
 
-_group "Installing Vulkan SDK"
-
-VULKAN_VER=1.4.321.1
+VULKAN_VER=1.4.341.1
 VULKAN_SDK=/c/VulkanSDK/$VULKAN_VER
 
 if [ ! -d "$VULKAN_SDK" ]; then
+	_group "Installing Vulkan SDK"
 	[ ! -f vulkan.exe ] && curl -L https://sdk.lunarg.com/sdk/download/$VULKAN_VER/windows/vulkan-sdk-windowxX64-$VULKAN_VER.exe -o vulkan.exe
 	./vulkan.exe --root "$VULKAN_SDK" --accept-licenses --default-answer --confirm-command install
+	_end
 fi
 
 export VULKAN_SDK
-
-_end
 
 if amd64; then
 	:
@@ -64,15 +62,15 @@ if amd64; then
 	fi
 	_end
 else
-	_group "Installing gas-preprocessor"
+	if ! command -v gas-preprocessor.pl 2>/dev/null; then
+		_group "Installing gas-preprocessor"
 
-	if ! command -v gas-preprocessor 2>/dev/null; then
 		mkdir -p /usr/local/bin
 		curl -L https://github.com/FFmpeg/gas-preprocessor/raw/refs/heads/master/gas-preprocessor.pl -o gas-preprocessor.pl
 
-		install -Dm755 gas-preprocessor.pl /usr/local/bin/gas-preprocessor
+		install -Dm755 gas-preprocessor.pl /usr/local/bin/gas-preprocessor.pl
+		rm gas-preprocessor.pl
 
-		gas-preprocessor -help
+		_end
 	fi
-	_end
 fi
