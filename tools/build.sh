@@ -39,17 +39,18 @@ msys() {
 }
 
 if msvc; then
+	_group "Setting up MSVC"
  	# shellcheck disable=SC2154
 	# gets cl.exe and link.exe into the PATH
 	CLPATH=$(cygpath -u "$VCToolsInstallDir\\bin\\Host${VSCMD_ARG_HOST_ARCH}\\${VSCMD_ARG_TGT_ARCH}")
  	export PATH="$CLPATH:$PATH"
 	echo "$CLPATH"
-	ls "$CLPATH"
 	cl.exe
-fi
+	_end
 
-# shellcheck disable=SC1091
-msvc && . windows/prepare.sh
+	# shellcheck disable=SC1091
+	. windows/prepare.sh
+fi
 
 VULKAN_ACCEL=(--enable-vulkan --enable-hwaccel={h264,vp9}_vulkan)
 NVDEC_ACCEL=(--enable-cuvid
@@ -158,7 +159,7 @@ PLATFORM_FLAGS+=(
 
 # cmake
 configure() {
-	echo "-- Configuring $PRETTY_NAME..."
+	_group "Configuring $PRETTY_NAME"
 
 	if msvc && [ "$ARCH" = amd64 ]; then
 		echo "adding ffnvcodec $FFNVCODEC_DIR to pkg config path"
@@ -204,31 +205,35 @@ configure() {
         "${PLATFORM_FLAGS[@]}"
 	)
 
-	echo "-- Configure flags: ${CONFIGURE_FLAGS[*]}"
+	echo "Configure flags: ${CONFIGURE_FLAGS[*]}"
 
 	./configure "${CONFIGURE_FLAGS[@]}"
+	_end
 }
 
 build() {
-    echo "-- Building $PRETTY_NAME..."
+    _group "Building $PRETTY_NAME"
     export CL=" /MP"
 
     $MAKE -j"$(num_procs)"
+	_end
 }
 
 strip_libs() {
-	echo "-- Stripping shared libraries..."
+	_group "Stripping shared libraries"
 
 	case "$PLATFORM" in
 		windows) ;;
 		android) find "$OUT_DIR" -name "*.so" -exec llvm-strip --strip-all {} \; ;;
 		*) find "$OUT_DIR" -name "*.$SHARED_SUFFIX" -exec strip {} \; ;;
 	esac
+
+	_end
 }
 
 ## Packaging ##
 copy_build_artifacts() {
-    echo "-- Copying artifacts..."
+    _group "Copying artifacts"
     mkdir -p "$OUT_DIR"
 
 	if [ "$PLATFORM" = "solaris" ]; then
@@ -242,6 +247,7 @@ copy_build_artifacts() {
 	    $MAKE install-headers DESTDIR="${OUT_DIR}"
 	fi
     rm -rf "$OUT_DIR"/{share,lib/pkgconfig}
+	_end
 }
 
 
