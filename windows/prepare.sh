@@ -3,6 +3,7 @@
 # This is only used for the MSVC target
 
 export PATH="/usr/local/bin:$PATH"
+: "${DEPS_DIR:=build/deps}"
 
 _group "Installing Vulkan SDK"
 
@@ -20,32 +21,27 @@ _end
 
 if amd64; then
 	:
-	# ## FFNVCODEC ##
-	# _group "Installing ffnvcodec-headers"
-	# echo "Root: $ROOT"
+	## FFNVCODEC ##
+	_group "Installing ffnvcodec-headers"
+	echo "Root: $ROOT"
 
-	# FFNVCODEC_VER=n13.0.19.0
-	# FFNVCODEC_DIR="$ROOT/usr/local"
+	FFNVCODEC_VER=n13.0.19.0
+	FFNVCODEC_DIR="$ROOTDIR/$DEPS_DIR/ffnvcodec"
 
-	# mkdir -p "$FFNVCODEC_DIR"
+	mkdir -p "$FFNVCODEC_DIR" "$ROOTDIR/$BUILD_DIR"
+	
+	cd "$ROOTDIR/$BUILD_DIR"
+	[ ! -d nv-codec-headers ] && git clone https://code.ffmpeg.org/FFmpeg/nv-codec-headers.git
 
-	# [ ! -d nv-codec-headers ] && git clone https://code.ffmpeg.org/FFmpeg/nv-codec-headers.git
-	# cd nv-codec-headers
-	# git checkout "$FFNVCODEC_VER"
+	cd nv-codec-headers
+	git checkout "$FFNVCODEC_VER"
 
-	# # TODO(crueter): try mingw's build
-	# make install PREFIX="$FFNVCODEC_DIR"
+	make install PREFIX="$FFNVCODEC_DIR"
 
-	# sed -i 's|D:/a/_temp/msys64||' "$FFNVCODEC_DIR/lib/pkgconfig/ffnvcodec.pc"
+	cd "$ROOTDIR"
 
-	# set -x
-	# cat D:/a/_temp/msys64/usr/local/lib/pkgconfig/ffnvcodec.pc
-	# cat /usr/local/lib/pkgconfig/ffnvcodec.pc
-	# set +x
-
-	# cd ..
-
-	# export FFNVCODEC_DIR
+	export FFNVCODEC_DIR
+	_end
 
 	# ## NASM ##
 	# _group "Installing nasm"

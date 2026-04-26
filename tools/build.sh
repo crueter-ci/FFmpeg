@@ -6,6 +6,10 @@ set -e
 
 . tools/common.sh
 
+## Cleanup ##
+rm -rf "$BUILD_DIR" "$OUT_DIR"
+mkdir -p "$BUILD_DIR" "$OUT_DIR"
+
 ## Buildtime/Input Variables ##
 
 DEFAULT_ARCH=amd64
@@ -17,7 +21,6 @@ if android; then
 fi
 
 : "${ARCH:=$DEFAULT_ARCH}"
-: "${BUILD_DIR:=build}"
 
 if android; then
 	CC="${ARCH}"-linux-android"${ANDROID_API}"-clang
@@ -119,10 +122,10 @@ case "$PLATFORM" in
 			--arch="$ARCH"
 			--target-os=win64
 			--extra-cflags="-I\"$VULKAN_SDK/include\""
+			--extra-cflags="-I\"$FFNVCODEC_DIR/include\""
 		)
 
-		PLATFORM_FLAGS+=(--extra-cflags="-I\"$FFNVCODEC_DIR/include\"")
-		amd64 && PLATFORM_FLAGS+=("${NVDEC_ACCEL[@]}")
+		if amd64; then PLATFORM_FLAGS+=("${NVDEC_ACCEL[@]}"); fi
 		;;
 	mingw)
 		PLATFORM_FLAGS=(
@@ -132,7 +135,7 @@ case "$PLATFORM" in
 			"${AMF_ACCEL[@]}"
 		)
 
-		amd64 && PLATFORM_FLAGS+=("${NVDEC_ACCEL[@]}")
+		if amd64; then PLATFORM_FLAGS+=("${NVDEC_ACCEL[@]}"); fi
 		;;
 esac
 
@@ -193,7 +196,16 @@ configure() {
 
 	echo "Configure flags: ${CONFIGURE_FLAGS[*]}"
 
-	./configure "${CONFIGURE_FLAGS[@]}"
+	if ! ./configure "${CONFIGURE_FLAGS[@]}"; then
+		_end
+
+		_group "Configure failed. Config log:"
+		cat ffbuild/config.log
+		_end
+		
+		exit 1
+	fi
+
 	_end
 }
 
@@ -236,10 +248,6 @@ copy_build_artifacts() {
 	_end
 }
 
-
-## Cleanup ##
-rm -rf "$BUILD_DIR" "$OUT_DIR"
-mkdir -p "$BUILD_DIR" "$OUT_DIR"
 
 # ## Download + Extract ##
 download

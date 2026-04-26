@@ -16,6 +16,7 @@ _end() {
 # TODO: autodetect platform
 # but make android manual specification
 ROOTDIR="$PWD"
+: "${BUILD_DIR:=build}"
 : "${OUT_DIR:=$PWD/out}"
 : "${PLATFORM:?You must supply the PLATFORM environment variable.}"
 : "${MACOSX_DEPLOYMENT_TARGET:=11.0}"
