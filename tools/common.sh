@@ -54,7 +54,7 @@ extract() {
 
 	case "$ARTIFACT" in
 		*.zip) unzip "$ROOTDIR/$ARTIFACT" >/dev/null ;;
-		*.tar.*) tar xf "$ROOTDIR/$ARTIFACT" >/dev/null ;;
+		*.tar.*) $TAR xf "$ROOTDIR/$ARTIFACT" >/dev/null ;;
 		*.7z) 7z x "$ROOTDIR/$ARTIFACT" >/dev/null ;;
 	esac
 
@@ -125,22 +125,26 @@ package() {
 SHARED_SUFFIX=so
 STATIC_SUFFIX=a
 MAKE="make"
+TAR="tar"
 CC=gcc
 CXX=g++
 
 case "$PLATFORM" in
 	linux) ;;
 	freebsd)
+        TAR=gtar
 		MAKE="gmake"
 		CC=gcc15
 		CXX=g++15
 		;;
 	openbsd)
+        TAR=gtar
 		MAKE="gmake"
 		CC=egcc
 		CXX=eg++
 		;;
 	solaris)
+        TAR=gtar
 		MAKE="gmake"
 		;;
 	android)
@@ -178,13 +182,14 @@ case "$PLATFORM" in
 		;;
 esac
 
-must_install "$MAKE"
+must_install "$MAKE" "$TAR"
 
 export SHARED_SUFFIX
 export STATIC_SUFFIX
 export CC
 export CXX
 export MAKE
+export TAR
 
 android_paths() {
 	export ANDROID_NDK_HOME="$ANDROID_NDK_ROOT"
