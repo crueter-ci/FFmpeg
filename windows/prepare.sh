@@ -61,8 +61,12 @@ if amd64; then
 	# fi
 
 	# _end
+	_group "Verifying dependencies"
 	nasm --version
-	pkg-config --cflags ffnvcodec
+	if pkg-config ffnvcodec; then
+		echo "ffnvcodec found"
+	fi
+	_end
 else
 	_group "Installing gas-preprocessor"
 
@@ -70,9 +74,7 @@ else
 		mkdir -p /usr/local/bin
 		curl -L https://github.com/FFmpeg/gas-preprocessor/raw/refs/heads/master/gas-preprocessor.pl -o gas-preprocessor.pl
 
-		cp gas-preprocessor.pl /usr/local/bin/gas-preprocessor
-
-		chmod a+x /usr/local/bin/gas-preprocessor
+		install -Dm755 gas-preprocessor.pl /usr/local/bin/gas-preprocessor
 
 		gas-preprocessor -help
 	fi
