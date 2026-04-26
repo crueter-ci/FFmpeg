@@ -29,8 +29,9 @@ if [ "$ARCH" = amd64 ]; then
 	cd nv-codec-headers
 	git checkout "$FFNVCODEC_VER"
 
-	export MSYS2_ARG_CONV_EXCL="*"
 	make install PREFIX="$FFNVCODEC_DIR"
+
+	sed -i 's|D:/a/_temp/msys64||' "$FFNVCODEC_DIR/lib/pkgconfig/ffnvcodec.pc"
 
 	set -x
 	cat D:/a/_temp/msys64/usr/local/lib/pkgconfig/ffnvcodec.pc
