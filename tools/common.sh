@@ -124,27 +124,28 @@ package() {
 
 SHARED_SUFFIX=so
 STATIC_SUFFIX=a
-MAKE="make"
-TAR="tar"
+# shellcheck disable=SC2209
+MAKE=make
+TAR=tar
 CC=gcc
 CXX=g++
 
 case "$PLATFORM" in
 	linux) ;;
 	freebsd)
-        TAR=gtar
+		TAR=gtar
 		MAKE="gmake"
 		CC=gcc15
 		CXX=g++15
 		;;
 	openbsd)
-        TAR=gtar
+		TAR=gtar
 		MAKE="gmake"
 		CC=egcc
 		CXX=eg++
 		;;
 	solaris)
-        TAR=gtar
+		TAR=gtar
 		MAKE="gmake"
 		;;
 	android)
