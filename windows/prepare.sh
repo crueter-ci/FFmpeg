@@ -29,7 +29,7 @@ if [ "$ARCH" = amd64 ]; then
 	cd nv-codec-headers
 	git checkout "$FFNVCODEC_VER"
 
-	make install PREFIX="$FFNVCODEC_DIR"
+	MSYS2_ARG_CONV_EXCL="*" make install PREFIX="$FFNVCODEC_DIR"
 	cd ..
 
 	export FFNVCODEC_DIR
