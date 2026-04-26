@@ -10,7 +10,7 @@ export FILENAME="ffmpeg"
 export REPO="FFmpeg/FFmpeg"
 export DIRECTORY="FFmpeg-$COMMIT"
 export TAG="n$VERSION"
-export ARTIFACT="$COMMIT.zip"
+export ARTIFACT="$COMMIT.tar.gz"
 export DOWNLOAD_URL="https://github.com/$REPO/archive/$ARTIFACT"
 
 SHORTSHA=$(echo "$COMMIT" | cut -c1-10)
