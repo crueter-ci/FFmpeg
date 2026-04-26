@@ -46,6 +46,8 @@ jobs:
           update: true
           install: >-
             git make unzip pkgconf diffutils
+          pacboy: >-
+            ffnvcodec-headers:p pkg-config:p nasm:p
 
       - name: Setup MSYS2 environment
         uses: msys2/setup-msys2@v2

@@ -16,48 +16,53 @@ fi
 
 export VULKAN_SDK
 
-if [ "$ARCH" = amd64 ]; then
-	## FFNVCODEC ##
-	_group "Installing ffnvcodec-headers"
-	echo "Root: $ROOT"
+_end
 
-	FFNVCODEC_VER=n13.0.19.0
-	FFNVCODEC_DIR="$ROOT/usr/local"
+if amd64; then
+	:
+	# ## FFNVCODEC ##
+	# _group "Installing ffnvcodec-headers"
+	# echo "Root: $ROOT"
 
-	mkdir -p "$FFNVCODEC_DIR"
+	# FFNVCODEC_VER=n13.0.19.0
+	# FFNVCODEC_DIR="$ROOT/usr/local"
 
-	[ ! -d nv-codec-headers ] && git clone https://code.ffmpeg.org/FFmpeg/nv-codec-headers.git
-	cd nv-codec-headers
-	git checkout "$FFNVCODEC_VER"
+	# mkdir -p "$FFNVCODEC_DIR"
 
-	# TODO(crueter): try mingw's build
-	make install PREFIX="$FFNVCODEC_DIR"
+	# [ ! -d nv-codec-headers ] && git clone https://code.ffmpeg.org/FFmpeg/nv-codec-headers.git
+	# cd nv-codec-headers
+	# git checkout "$FFNVCODEC_VER"
 
-	sed -i 's|D:/a/_temp/msys64||' "$FFNVCODEC_DIR/lib/pkgconfig/ffnvcodec.pc"
+	# # TODO(crueter): try mingw's build
+	# make install PREFIX="$FFNVCODEC_DIR"
 
-	set -x
-	cat D:/a/_temp/msys64/usr/local/lib/pkgconfig/ffnvcodec.pc
-	cat /usr/local/lib/pkgconfig/ffnvcodec.pc
-	set +x
+	# sed -i 's|D:/a/_temp/msys64||' "$FFNVCODEC_DIR/lib/pkgconfig/ffnvcodec.pc"
 
-	cd ..
+	# set -x
+	# cat D:/a/_temp/msys64/usr/local/lib/pkgconfig/ffnvcodec.pc
+	# cat /usr/local/lib/pkgconfig/ffnvcodec.pc
+	# set +x
 
-	export FFNVCODEC_DIR
+	# cd ..
 
-	## NASM ##
-	_group "Installing nasm"
+	# export FFNVCODEC_DIR
 
-	NASM_VER=3.01
+	# ## NASM ##
+	# _group "Installing nasm"
 
-	if ! command -v nasm 2>/dev/null; then
-		mkdir -p /usr/local/bin
-		curl -L https://nasm.us/pub/nasm/releasebuilds/$NASM_VER/win64/nasm-$NASM_VER-win64.zip -o nasm.zip
-		unzip nasm.zip
-		mv nasm*/nasm.exe /usr/local/bin/nasm.exe
-		rm -rf nasm*
-	fi
+	# NASM_VER=3.01
 
-	_end
+	# if ! command -v nasm 2>/dev/null; then
+	# 	mkdir -p /usr/local/bin
+	# 	curl -L https://nasm.us/pub/nasm/releasebuilds/$NASM_VER/win64/nasm-$NASM_VER-win64.zip -o nasm.zip
+	# 	unzip nasm.zip
+	# 	mv nasm*/nasm.exe /usr/local/bin/nasm.exe
+	# 	rm -rf nasm*
+	# fi
+
+	# _end
+	nasm --version
+	pkg-config --cflags ffnvcodec
 else
 	_group "Installing gas-preprocessor"
 

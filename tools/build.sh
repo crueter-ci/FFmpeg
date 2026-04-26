@@ -8,10 +8,6 @@ set -e
 
 ## Buildtime/Input Variables ##
 
-android() {
-	[ "$PLATFORM" = android ]
-}
-
 DEFAULT_ARCH=amd64
 if android; then
 	DEFAULT_ARCH=aarch64
@@ -27,16 +23,6 @@ if android; then
 	CC="${ARCH}"-linux-android"${ANDROID_API}"-clang
 	CXX="${ARCH}"-linux-android"${ANDROID_API}"-clang++
 fi
-
-## Platform Stuff ##
-
-msvc() {
-	[ "$PLATFORM" = windows ]
-}
-
-msys() {
-	[ "$PLATFORM" = mingw ]
-}
 
 if msvc; then
 	_group "Setting up MSVC"
@@ -136,7 +122,7 @@ case "$PLATFORM" in
 		)
 
 		PLATFORM_FLAGS+=(--extra-cflags="-I\"$FFNVCODEC_DIR/include\"")
-		[ "$ARCH" = amd64 ] && PLATFORM_FLAGS+=("${NVDEC_ACCEL[@]}")
+		amd64 && PLATFORM_FLAGS+=("${NVDEC_ACCEL[@]}")
 		;;
 	mingw)
 		PLATFORM_FLAGS=(
@@ -146,7 +132,7 @@ case "$PLATFORM" in
 			"${AMF_ACCEL[@]}"
 		)
 
-		[ "$ARCH" = amd64 ] && PLATFORM_FLAGS+=("${NVDEC_ACCEL[@]}")
+		amd64 && PLATFORM_FLAGS+=("${NVDEC_ACCEL[@]}")
 		;;
 esac
 
@@ -161,7 +147,7 @@ PLATFORM_FLAGS+=(
 configure() {
 	_group "Configuring $PRETTY_NAME"
 
-	if msvc && [ "$ARCH" = amd64 ]; then
+	if msvc && amd64; then
 		echo "adding ffnvcodec $FFNVCODEC_DIR to pkg config path"
 		export PKG_CONFIG_PATH="$FFNVCODEC_DIR/lib/pkgconfig:$PKG_CONFIG_PATH"
 

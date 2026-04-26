@@ -17,14 +17,17 @@ _end() {
 # but make android manual specification
 ROOTDIR="$PWD"
 : "${OUT_DIR:=$PWD/out}"
-: "${PLATFORM:?-- You must supply the PLATFORM environment variable.}"
+: "${PLATFORM:?You must supply the PLATFORM environment variable.}"
 : "${MACOSX_DEPLOYMENT_TARGET:=11.0}"
 
 ## Command Checks ##
 
 must_install() {
 	for cmd in "$@"; do
-		command -v "$cmd" >/dev/null 2>&1 || { echo "-- $cmd must be installed" && exit 1; }
+		if ! command -v "$cmd" >/dev/null 2>&1; then
+			echo "-- $cmd must be installed">&2
+			exit 1
+		fi
 	done
 }
 
@@ -34,7 +37,7 @@ case "$ARTIFACT" in
 	*.zip) must_install unzip ;;
 	*.tar.*) ;;
 	*.7z) must_install 7z ;;
-	*) echo "-- Unsupported extension ${ARTIFACT##.*}"; exit 1 ;;
+	*) echo "-- Unsupported extension ${ARTIFACT##.*}">&2; exit 1 ;;
 esac
 
 ## Utility Functions ##
@@ -221,4 +224,26 @@ android_paths() {
             break
         fi
     done
+}
+
+## Platform Stuff ##
+
+android() {
+	[ "$PLATFORM" = android ]
+}
+
+msvc() {
+	[ "$PLATFORM" = windows ]
+}
+
+msys() {
+	[ "$PLATFORM" = mingw ]
+}
+
+amd64() {
+	[ "$ARCH" = amd64 ] || [ "$ARCH" = x86_64 ]
+}
+
+aarch64() {
+	[ "$ARCH" = aarch64 ] || [ "$ARCH" = arm64 ]
 }
