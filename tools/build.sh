@@ -35,6 +35,11 @@ if msvc; then
  	export PATH="$CLPATH:$PATH"
 	echo "$CLPATH"
 	cl.exe
+
+	export PATH="$CUDA_PATH:$PATH"
+
+	ls "$CUDA_PATH"
+
 	_end
 
 	# shellcheck disable=SC1091
@@ -198,7 +203,10 @@ configure() {
 
 	echo "Configure flags: ${CONFIGURE_FLAGS[*]}"
 
-	echo "CONFIG_LOG=$(cygpath -w $PWD/ffbuild/config.log)" >> "$GITHUB_ENV"
+	# TODO(crueter): Generify the workflow so this can be added to all platforms.
+	if msvc || msys; then
+		echo "CONFIG_LOG=$(cygpath -w "$PWD"/ffbuild/config.log)" >> "$GITHUB_ENV"
+	fi
 
 	./configure "${CONFIGURE_FLAGS[@]}"
 
