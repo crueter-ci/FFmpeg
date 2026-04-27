@@ -76,6 +76,7 @@ jobs:
             -c "PLATFORM=${{ matrix.platform }} ARCH=${{ matrix.os.arch }} MSYS2_TOOLCHAIN=${{ steps.msys2.outputs.msys2-location }} ./tools/build.sh"
 
       - name: Upload config.log
+        if: ${{ always() }}
         uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.platform }}-${{ matrix.os.arch }}-config
