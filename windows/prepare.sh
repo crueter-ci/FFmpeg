@@ -34,13 +34,13 @@ if amd64; then
 	cd nv-codec-headers
 	git checkout "$ffnvcodec_version"
 
-	make install PREFIX="$FFNVCODEC_DIR"
+	make install PREFIX="$(cygpath -w "$FFNVCODEC_DIR")"
 
 	cd "$ROOTDIR"
 
 	cat "$FFNVCODEC_DIR/lib/pkgconfig/ffnvcodec.pc"
 	# warning LNK4044: unrecognized option '/ID:/a/FFmpeg/FFmpeg/build/deps/ffnvcodec/include'; ignored
-	sed -i '/-I/d' "$FFNVCODEC_DIR/lib/pkgconfig/ffnvcodec.pc"
+	# sed -i '/-I/d' "$FFNVCODEC_DIR/lib/pkgconfig/ffnvcodec.pc"
 
 	export FFNVCODEC_DIR
 	_end
