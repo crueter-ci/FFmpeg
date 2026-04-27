@@ -38,6 +38,10 @@ if amd64; then
 
 	cd "$ROOTDIR"
 
+	cat "$FFNVCODEC_DIR/lib/pkgconfig/ffnvcodec.pc"
+	# warning LNK4044: unrecognized option '/ID:/a/FFmpeg/FFmpeg/build/deps/ffnvcodec/include'; ignored
+	sed -i '/-I/d' "$FFNVCODEC_DIR/lib/pkgconfig/ffnvcodec.pc"
+
 	export FFNVCODEC_DIR
 	_end
 
