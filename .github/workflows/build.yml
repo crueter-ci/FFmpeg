@@ -207,6 +207,7 @@ jobs:
   linux:
     name: "Linux (${{ matrix.arch }})"
     runs-on: ${{ matrix.runs-on }}
+    container: ghcr.io/pkgforge-dev/archlinux:latest
     strategy:
       fail-fast: false
       matrix:

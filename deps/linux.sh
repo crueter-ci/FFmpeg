@@ -1,15 +1,14 @@
 #!/bin/sh -ex
 
-sudo apt-get update
-
-sudo apt-get install -y \
+pacman -Syu --needed --noconfirm \
     nasm \
+    yasm \
     cmake \
-    build-essential \
+    base-devel \
     git \
     unzip \
     gcc \
-    libdrm-dev \
-    ninja-build \
-	libx11-xcb-dev \
-	libxrandr-dev
+    ffnvcodec-headers \
+    vulkan-headers \
+    libva \
+	amf-headers
