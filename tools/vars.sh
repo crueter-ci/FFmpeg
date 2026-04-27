@@ -4,7 +4,7 @@
 
 # In some projects you will want to fetch latest from gh/fj api
 VERSION="8.0.1"
-export COMMIT="e64a1d29532d89f0dc515da55343d3a3caa78ead"
+export COMMIT="c24d67a0ff5c5691cc6074ca572bafb1e1c6ed0e"
 export PRETTY_NAME="FFmpeg"
 export FILENAME="ffmpeg"
 export REPO="FFmpeg/FFmpeg"
