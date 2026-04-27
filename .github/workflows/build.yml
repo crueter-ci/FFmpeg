@@ -75,8 +75,14 @@ jobs:
           ${{ steps.msys2.outputs.msys2-location }}\msys2_shell.cmd -no-start -defterm -here -${{ matrix.os.msystem }} -full-path -shell bash^
             -c "PLATFORM=${{ matrix.platform }} ARCH=${{ matrix.os.arch }} MSYS2_TOOLCHAIN=${{ steps.msys2.outputs.msys2-location }} ./tools/build.sh"
 
+      - name: Upload config.log
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ matrix.platform }}-${{ matrix.os.arch }}-config
+          path: ${{ env.CONFIG_LOG }}
+
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.platform }}-${{ matrix.os.arch }}
           path: artifacts/*
@@ -108,7 +114,7 @@ jobs:
           ./tools/build.sh
 
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: android-${{ matrix.arch }}
           path: artifacts/*
@@ -192,7 +198,7 @@ jobs:
             bash -e ./tools/build.sh
 
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.platform }}-${{ matrix.arch }}
           path: artifacts/*
@@ -225,7 +231,7 @@ jobs:
         run: ./tools/build.sh
 
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: linux-${{ matrix.arch }}
           path: artifacts/*
@@ -265,7 +271,7 @@ jobs:
           ./tools/build.sh
 
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.platform }}-${{ matrix.arch }}
           path: artifacts/*

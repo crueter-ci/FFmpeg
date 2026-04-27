@@ -198,17 +198,9 @@ configure() {
 
 	echo "Configure flags: ${CONFIGURE_FLAGS[*]}"
 
-	if ! ./configure "${CONFIGURE_FLAGS[@]}"; then
-		_end
+	echo "CONFIG_LOG=$PWD/ffbuild/config.log" >> "$GITHUB_ENV"
 
-		if [ -n "$GITHUB_RUN_ID" ]; then
-			_group "Configure failed. Config log:"
-			cat ffbuild/config.log
-			_end
-		fi
-		
-		exit 1
-	fi
+	./configure "${CONFIGURE_FLAGS[@]}"
 
 	_end
 }
