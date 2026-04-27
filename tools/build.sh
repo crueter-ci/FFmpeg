@@ -198,7 +198,7 @@ configure() {
 
 	echo "Configure flags: ${CONFIGURE_FLAGS[*]}"
 
-	echo "CONFIG_LOG=$PWD/ffbuild/config.log" >> "$GITHUB_ENV"
+	echo "CONFIG_LOG=$(cygpath -w $PWD/ffbuild/config.log)" >> "$GITHUB_ENV"
 
 	./configure "${CONFIGURE_FLAGS[@]}"
 
