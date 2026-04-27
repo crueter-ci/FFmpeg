@@ -23,16 +23,16 @@ if amd64; then
 	_group "Installing ffnvcodec-headers"
 	echo "Root: $ROOT"
 
-	FFNVCODEC_VER=n13.0.19.0
+	ffnvcodec_version=33a9ede8d9914299d9262539c576a15bd0a19621
 	FFNVCODEC_DIR="$ROOTDIR/$DEPS_DIR/ffnvcodec"
 
 	mkdir -p "$FFNVCODEC_DIR" "$ROOTDIR/$BUILD_DIR"
-	
+
 	cd "$ROOTDIR/$BUILD_DIR"
 	[ ! -d nv-codec-headers ] && git clone https://code.ffmpeg.org/FFmpeg/nv-codec-headers.git
 
 	cd nv-codec-headers
-	git checkout "$FFNVCODEC_VER"
+	git checkout "$ffnvcodec_version"
 
 	make install PREFIX="$FFNVCODEC_DIR"
 
