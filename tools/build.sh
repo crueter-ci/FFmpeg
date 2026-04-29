@@ -203,7 +203,7 @@ configure() {
 		config_log=$(cygpath -w "$config_log")
 	fi
 
-	echo "CONFIG_LOG=$config_log" >> "$GITHUB_ENV"
+	if [ -n "$GITHUB_ENV" ]; then echo "CONFIG_LOG=$config_log" >> "$GITHUB_ENV"; fi
 
 	./configure "${CONFIGURE_FLAGS[@]}"
 
