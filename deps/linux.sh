@@ -7,6 +7,6 @@ sudo apt-get install -y \
     git \
     unzip \
     gcc \
-    libffnvcodec-dev \
-    vulkan-headers \
+    libffmpeg-nvenc-dev \
+    libvulkan-dev \
     libva-dev

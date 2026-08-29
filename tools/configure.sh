@@ -159,8 +159,11 @@ flags() {
 			echo "--extra-ldflags=-mmacosx-version-min=13.0"
 		else
 			: "${IOS_TARGET:=iphoneos}"
-			CC="xcrun --sdk $IOS_TARGET clang"
-			CXX="xcrun --sdk $IOS_TARGET clang++"
+
+			# TODO: this should be a common func :()
+			sysroot="$(xcrun --sdk "$IOS_TARGET" --show-sdk-path)"
+			CC="$(xcrun --sdk "$IOS_TARGET" --find clang) -isysroot ${sysroot}"
+			CXX="$(xcrun --sdk "$IOS_TARGET" --find clang++) -isysroot ${sysroot}"
 
 			on cross-compile
 
@@ -175,10 +178,9 @@ flags() {
 			--toolchain=msvc
 			--arch=$ARCH
 			--target-os=win64
+			--extra-cflags=-I"$VULKAN_SDK/include"
+			--extra-cflags=-I"$FFNVCODEC_DIR/include"
 		EOF
-
-		# --extra-cflags="-I\"$VULKAN_SDK/include\""
-		# --extra-cflags="-I\"$FFNVCODEC_DIR/include\""
 
 		CC=cl
 		CXX=cl
