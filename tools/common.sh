@@ -36,9 +36,9 @@ Darwin) : "${PLATFORM:=macos}" ;;
 CYGWIN* | MINGW* | MSYS*)
 	# awesome microsoft moment
 	if [ -n "$MYSTEM" ]; then
-		"${PLATFORM:=mingw}"
+		: "${PLATFORM:=mingw}"
 	else
-		"${PLATFORM:=windows}"
+		: "${PLATFORM:=windows}"
 	fi
 	;;
 *) : "${PLATFORM:?-- You must supply the PLATFORM environment variable.}" ;;

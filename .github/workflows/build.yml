@@ -43,7 +43,9 @@ jobs:
 
       - name: Generate Build Matrix
         id: matrix
-        run: echo "matrix=$(./tools/matrix.sh)" >> "$GITHUB_OUTPUT"
+        run: |
+          echo "matrix=$(./tools/matrix.sh)" >> "$GITHUB_OUTPUT"
+          tools/matrix.sh
 
   build:
     needs: [download]
