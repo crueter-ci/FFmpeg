@@ -54,6 +54,8 @@ jobs:
       matrix:
         include: ${{ fromJson(needs.download.outputs.matrix) }}
 
+    container: ${{ matrix.container }}
+
     defaults:
       run:
         shell: >-

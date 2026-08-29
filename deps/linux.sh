@@ -1,12 +1,11 @@
-#!/bin/sh -e
+#!/bin/sh -ex
 
-sudo apt-get update
-sudo apt-get install -y \
+pacman -Syu --needed --noconfirm \
     nasm \
-    build-essential \
+    base-devel \
     git \
     unzip \
     gcc \
-    libffmpeg-nvenc-dev \
-    libvulkan-dev \
-    libva-dev
+    ffnvcodec-headers \
+    vulkan-headers \
+    libva

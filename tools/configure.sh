@@ -178,8 +178,8 @@ flags() {
 			--toolchain=msvc
 			--arch=$ARCH
 			--target-os=win64
-			--extra-cflags=-I"$VULKAN_SDK/include"
-			--extra-cflags=-I"$FFNVCODEC_DIR/include"
+			--extra-cflags=-I$VULKAN_SDK/include
+			--extra-cflags=-I$FFNVCODEC_DIR/include
 		EOF
 
 		CC=cl
@@ -194,6 +194,10 @@ flags() {
 
 	# sccache
 	if [ -n "$SCCACHE_PATH" ]; then
+		if mingw; then
+			SCCACHE_PATH="$(cygpath -u "$SCCACHE_PATH")"
+		fi
+
 		CC="$SCCACHE_PATH $CC"
 		CXX="$SCCACHE_PATH $CXX"
 	fi

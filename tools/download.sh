@@ -8,11 +8,17 @@ date +"%s" > TIMESTAMP
 
 . tools/common.sh
 
-must_install curl
-
 # download
 download() {
 	_group "Downloading $PRETTY_NAME $VERSION"
+
+	must_install curl
+
+	if [ -n "$GITHUB_RUN_ID" ]; then
+		echo "ARTIFACT=$ARTIFACT" >> "$GITHUB_ENV"
+	fi
+
+	echo "$VERSION" > VERSION
 
 	echo "-- URL: $DOWNLOAD_URL"
 
@@ -39,11 +45,5 @@ download() {
 	_end
 	exit 1
 }
-
-if [ -n "$GITHUB_RUN_ID" ]; then
-	echo "ARTIFACT=$ARTIFACT" >> "$GITHUB_ENV"
-fi
-
-echo "$VERSION" > VERSION
 
 download
