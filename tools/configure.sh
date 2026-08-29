@@ -213,8 +213,15 @@ flags() {
 configure() {
 	_group "Configuring $PRETTY_NAME"
 
-	# shellcheck disable=SC2046
-	./configure $(flags)
+	FLAGS="$(flags)"
+
+	echo "Flags:"
+	for flag in $FLAGS; do
+		echo "  $flag"
+	done
+
+	# shellcheck disable=SC2086
+	./configure $FLAGS
 
 	_end
 }
