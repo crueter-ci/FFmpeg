@@ -162,6 +162,8 @@ flags() {
 			CC="xcrun --sdk $IOS_TARGET clang"
 			CXX="xcrun --sdk $IOS_TARGET clang++"
 
+			on cross-compile
+
 			echo "--extra-cflags=-mios-version-min=16.0"
 			echo "--extra-ldflags=-mios-version-min=16.0"
 		fi

@@ -154,6 +154,7 @@ jobs:
         run: ./tools/configure.sh
 
       - name: Build (Windows)
+        if: matrix.platform == 'windows'
         run: |
           $env:CL = " /MP /DEBUG:NONE"
 
