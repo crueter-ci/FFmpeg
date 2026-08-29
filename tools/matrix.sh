@@ -3,7 +3,7 @@
 # Generate build matrix
 
 target() {
-    printf '{"runs-on": "%s", "arch": "%s", "platform": "%s", "container": %s"}' "$1" "$2" "$3" "$4"
+    printf '{"runs-on": "%s", "arch": "%s", "platform": "%s", "container": "%s"}' "$1" "$2" "$3" "$4"
 }
 
 first=1
