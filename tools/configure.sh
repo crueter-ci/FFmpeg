@@ -138,7 +138,7 @@ flags() {
 		cat <<-EOF
 			--target-os=android
 			--arch=$ABI
-			--extra-ldflags="-Wl,-z,max-page-size=16384,--hash-style=both"
+			--extra-ldflags=-Wl,-z,max-page-size=16384,--hash-style=both
 		EOF
 
 		CC="${ABI}"-linux-android"${ANDROID_API}"-clang
@@ -155,15 +155,15 @@ flags() {
 		off iconv
 
 		if macos; then
-			echo "--extra-cflags=\"-mmacosx-version-min=13.0\""
-			echo "--extra-ldflags=\"-mmacosx-version-min=13.0\""
+			echo "--extra-cflags=-mmacosx-version-min=13.0"
+			echo "--extra-ldflags=-mmacosx-version-min=13.0"
 		else
 			: "${IOS_TARGET:=iphoneos}"
 			CC="xcrun --sdk $IOS_TARGET clang"
 			CXX="xcrun --sdk $IOS_TARGET clang++"
 
-			echo "--extra-cflags=\"-mios-version-min=16.0\""
-			echo "--extra-ldflags=\"-mios-version-min=16.0\""
+			echo "--extra-cflags=-mios-version-min=16.0"
+			echo "--extra-ldflags=-mios-version-min=16.0"
 		fi
 	fi
 
@@ -171,7 +171,7 @@ flags() {
 	if msvc; then
 		cat <<-EOF
 			--toolchain=msvc
-			--arch="$ARCH"
+			--arch=$ARCH
 			--target-os=win64
 		EOF
 
@@ -194,8 +194,8 @@ flags() {
 		CXX="$SCCACHE_PATH $CXX"
 	fi
 
-	echo "--cc=$CC"
-	echo "--cxx=$CXX"
+	echo --cc="$CC"
+	echo --cxx="$CXX"
 
 	# main flags
 	off avdevice avformat doc everything ffmpeg ffprobe network swresample
@@ -213,15 +213,21 @@ flags() {
 configure() {
 	_group "Configuring $PRETTY_NAME"
 
-	FLAGS="$(flags)"
+	FLAGS_FILE=$(mktemp)
+	flags > "$FLAGS_FILE"
+
+	set --
+	while IFS= read -r line; do
+		set -- "$@" "$line"
+	done < "$FLAGS_FILE"
+	rm -f "$FLAGS_FILE"
 
 	echo "Flags:"
-	for flag in $FLAGS; do
+	for flag in "$@"; do
 		echo "  $flag"
 	done
 
-	# shellcheck disable=SC2086
-	./configure $FLAGS
+	./configure "$@"
 
 	_end
 }
