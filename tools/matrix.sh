@@ -9,7 +9,7 @@ target() {
 first=1
 add() {
     [ "$first" -eq 1 ] && first=0 || printf ','
-    target "$1" "$2" "$3"
+    target "$1" "$2" "$3" "$4"
 }
 
 printf '['
