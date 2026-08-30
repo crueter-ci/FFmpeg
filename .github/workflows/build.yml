@@ -76,7 +76,6 @@ jobs:
 
       # Setup
       - name: Setup sccache
-        if: matrix.platform != 'ios'
         uses: mozilla-actions/sccache-action@v0.0.11
 
       - name: Setup MSYS2
