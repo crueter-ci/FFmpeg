@@ -157,7 +157,7 @@ jobs:
         run: ${{ env.MAKE }} -j8
         working-directory: ${{ env.DIRECTORY }}
 
-      - name: Package (Windows)
+      - name: Package
         run: bash ./tools/package.sh
 
       - name: Upload Tarball
