@@ -9,6 +9,7 @@ env:
   ARTIFACT: unset
   DIRECTORY: unset
   SCCACHE_GHA_ENABLED: "true"
+  MAKE: make
 
 jobs:
   download:
@@ -119,6 +120,9 @@ jobs:
 
             echo "ARCH=${{ matrix.arch }}"
             echo "PLATFORM=${{ matrix.platform }}"
+
+            # change this if you need jom, ninja, cmake etc
+            echo "MAKE=make"
           } >> "$GITHUB_ENV"
 
           mkdir -p out
@@ -154,7 +158,8 @@ jobs:
         run: bash ./tools/configure.sh
 
       - name: Build
-        run: make -C ${{ env.DIRECTORY }} -j8
+        run: ${{ env.MAKE }} -j8
+        working-directory: ${{ env.DIRECTORY }}
 
       - name: Package (Windows)
         run: bash ./tools/package.sh
