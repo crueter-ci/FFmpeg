@@ -31,8 +31,16 @@ fi
 
 # default platform
 case "$(uname -s)" in
-Linux) : "${PLATFORM:=linux}" ;;
-Darwin) : "${PLATFORM:=macos}" ;;
+Linux)
+	: "${PLATFORM:=linux}"
+	case "$(uname -m)" in
+		x86_64) : "${ARCH:=amd64}" ;;
+		aarch64) : "${ARCH:=aarch64}" ;;
+	esac
+	;;
+Darwin)
+	: "${PLATFORM:=macos}"
+	: "${ARCH:=aarch64}" ;;
 CYGWIN* | MINGW* | MSYS*)
 	# awesome microsoft moment
 	if [ -n "$MYSTEM" ]; then
@@ -40,6 +48,11 @@ CYGWIN* | MINGW* | MSYS*)
 	else
 		: "${PLATFORM:=windows}"
 	fi
+
+	case "$(uname)" in
+		*ARM64) : "${ARCH:=aarch64}" ;;
+		*) : "${ARCH:=amd64}" ;;
+	esac
 	;;
 *) : "${PLATFORM:?-- You must supply the PLATFORM environment variable.}" ;;
 esac

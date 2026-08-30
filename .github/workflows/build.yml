@@ -4,8 +4,6 @@ on:
   workflow_call:
 
 env:
-  TAG: 9.0.1
-  COMMIT: bf1b838f2ab88b4f8fd83443325c782ea0e0f7fa
   ARTIFACT: unset
   DIRECTORY: unset
   SCCACHE_GHA_ENABLED: "true"

@@ -4,8 +4,6 @@
 
 set -e
 
-date +"%s" > TIMESTAMP
-
 . tools/common.sh
 
 download
