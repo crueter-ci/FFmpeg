@@ -154,11 +154,7 @@ jobs:
         run: bash ./tools/configure.sh
 
       - name: Build
-        run: |
-          cd ${{ env.DIRECTORY }}
-
-          make -j8
-          make install
+        run: make -C ${{ env.DIRECTORY }} -j8
 
       # TODO(crueter): Find a way to not need this
       - name: Package (Windows)

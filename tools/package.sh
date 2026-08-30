@@ -9,8 +9,11 @@ set -e
 ROOTDIR="$PWD"
 
 copy_build_artifacts() {
-	_group "Cleaning"
+	_group "Copying build artifacts"
+
+	make install
 	rm -rf out/share out/lib/pkgconfig
+
 	_end
 }
 
