@@ -30,13 +30,9 @@ jobs:
       - name: Get Version
         run: echo "VERSION=$(cat VERSION)" >> "$GITHUB_ENV"
 
-      - name: Generate Changelog
-        run: ./tools/changelog.sh > changelog.md
-
       - name: Release
         uses: softprops/action-gh-release@v3
         with:
-          body_path: ./changelog.md
           name: FFmpeg ${{ env.VERSION }}
           tag_name: ${{ env.VERSION }}
           files: |
