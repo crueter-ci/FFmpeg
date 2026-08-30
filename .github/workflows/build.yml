@@ -9,7 +9,6 @@ env:
   ARTIFACT: unset
   DIRECTORY: unset
   SCCACHE_GHA_ENABLED: "true"
-  MAKE: make
 
 jobs:
   download:
@@ -71,6 +70,8 @@ jobs:
 
     env:
       BASH_SHELL: ${{ matrix.platform == 'mingw' && 'msys2 {0}' || 'bash' }}
+      # change this if you need jom, ninja, cmake etc
+      MAKE: make
 
     steps:
       - name: Checkout
@@ -120,9 +121,6 @@ jobs:
 
             echo "ARCH=${{ matrix.arch }}"
             echo "PLATFORM=${{ matrix.platform }}"
-
-            # change this if you need jom, ninja, cmake etc
-            echo "MAKE=make"
           } >> "$GITHUB_ENV"
 
           mkdir -p out
