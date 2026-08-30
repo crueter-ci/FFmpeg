@@ -11,7 +11,7 @@ ROOTDIR="$PWD"
 copy_build_artifacts() {
 	_group "Copying build artifacts"
 
-	make install
+	make install -C "$DIRECTORY"
 	rm -rf out/share out/lib/pkgconfig
 
 	_end
