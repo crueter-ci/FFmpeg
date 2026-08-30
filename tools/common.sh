@@ -1,65 +1,131 @@
-#!/bin/bash -e
+#!/bin/sh -e
 
 ## Build variables ##
 
 # shellcheck disable=SC1091
 . ./tools/vars.sh
 
+export ROOTDIR="$PWD"
+
 _group() {
-    echo "##[group]$*"
+	if [ -n "$GITHUB_RUN_ID" ]; then
+		echo "##[group]$*"
+	else
+		echo "======= $* ======="
+	fi
 }
 
 _end() {
-    echo "##[endgroup]"
+	if [ -n "$GITHUB_RUN_ID" ]; then
+		echo "##[endgroup]"
+	fi
 }
 
-# TODO: autodetect platform
-# but make android manual specification
-ROOTDIR="$PWD"
-: "${BUILD_DIR:=build}"
-: "${OUT_DIR:=$PWD/out}"
-: "${PLATFORM:?You must supply the PLATFORM environment variable.}"
-: "${MACOSX_DEPLOYMENT_TARGET:=11.0}"
+# vcvarsall.bat outputs Platform for some asinine reason...
+# windows is case-insensitive, so attempts to set PLATFORM
+# will keep the variable name as Platform
+# so we have to normalize it here. thank you, microslop
+if [ -n "$Platform" ] && [ -z "$PLATFORM" ]; then
+	export PLATFORM="$Platform"
+fi
+
+# default platform
+case "$(uname -s)" in
+Linux) : "${PLATFORM:=linux}" ;;
+Darwin) : "${PLATFORM:=macos}" ;;
+CYGWIN* | MINGW* | MSYS*)
+	# awesome microsoft moment
+	if [ -n "$MYSTEM" ]; then
+		: "${PLATFORM:=mingw}"
+	else
+		: "${PLATFORM:=windows}"
+	fi
+	;;
+*) : "${PLATFORM:?-- You must supply the PLATFORM environment variable.}" ;;
+esac
 
 ## Command Checks ##
 
 must_install() {
 	for cmd in "$@"; do
-		if ! command -v "$cmd" >/dev/null 2>&1; then
-			echo "-- $cmd must be installed">&2
-			exit 1
-		fi
+		command -v "$cmd" >/dev/null 2>&1 || { echo "-- $cmd must be installed" && exit 1; }
 	done
 }
 
-must_install curl zstd tar
 
-case "$ARTIFACT" in
-	*.zip) must_install unzip ;;
-	*.tar.*) ;;
-	*.7z) must_install 7z ;;
-	*) echo "-- Unsupported extension ${ARTIFACT##.*}">&2; exit 1 ;;
-esac
+## Platform Utility Functions ##
 
-## Utility Functions ##
+linux() {
+	[ "$PLATFORM" = linux ]
+}
 
-# download
+macos() {
+	[ "$PLATFORM" = macos ]
+}
+
+ios() {
+	[ "$PLATFORM" = ios ]
+}
+
+msvc() {
+	[ "$PLATFORM" = windows ]
+}
+
+mingw() {
+	[ "$PLATFORM" = mingw ]
+}
+
+windows() {
+	msvc || mingw
+}
+
+android() {
+	[ "$PLATFORM" = android ]
+}
+
+arm64() {
+	[ "$ARCH" = arm64 ] || [ "$ARCH" = aarch64 ]
+}
+
+amd64() {
+	[ "$ARCH" = amd64 ] || [ "$ARCH" = x86_64 ]
+}
+
+###############
+# Other utils #
+###############
+
+# download, store version/artifact names
 download() {
-	TRIES=0
-	[ -f "$ARTIFACT" ] && return
+	_group "Downloading $PRETTY_NAME $VERSION"
 
-	_group "Downloading"
-	echo "-- $ARTIFACT from $DOWNLOAD_URL"
+	must_install curl
+
+	if [ -n "$GITHUB_RUN_ID" ]; then
+		echo "ARTIFACT=$ARTIFACT" >> "$GITHUB_ENV"
+	fi
+
+	echo "$VERSION" > VERSION
+
+	echo "-- URL: $DOWNLOAD_URL"
+
+	TRIES=0
+	if [ -f "$ARTIFACT" ]; then
+		echo "-- Already downloaded, skipping"
+		_end
+		return
+	fi
 
 	while [ "$TRIES" -le 30 ]; do
 		if curl -L "$DOWNLOAD_URL" -o "$ARTIFACT"; then
+			echo "-- Succeeded"
 			_end
 			return
 		fi
 
 		TRIES=$((TRIES + 1))
-		echo "-- Download failed, trying again in 5 seconds"
-		sleep 0
+		echo "-- Download failed, trying again in 5 seconds..."
+		sleep 5
 	done
 
 	echo "-- Download failed after 30 tries, aborting"
@@ -67,71 +133,31 @@ download() {
 	exit 1
 }
 
-# extract the archive + apply patches
-extract() {
-	_group "Extracting $PRETTY_NAME $VERSION"
-	rm -fr "$DIRECTORY"
-
-	case "$ARTIFACT" in
-		*.zip) unzip "$ROOTDIR/$ARTIFACT" >/dev/null ;;
-		*.tar.*) $TAR xf "$ROOTDIR/$ARTIFACT" >/dev/null ;;
-		*.7z) 7z x "$ROOTDIR/$ARTIFACT" >/dev/null ;;
-	esac
-
-	# FUCK YOU APPLE
-	pushd "$DIRECTORY"
-
-	find libavutil -name "*.c" | while read -r file; do
-		sed 's/if HAVE_UNISTD_H/if HAVE_UNISTD_H || defined(__APPLE__)/' "$file" > "$file".bak
-		mv "$file".bak "$file"
-	done
-
-	popd
-
-	_end
-}
-
-# generate sha1, 256, and 512 sums for a file
-sums() {
-	for file in "$@"; do
-		for algo in 1 256 512; do
-			if ! command -v sha${algo}sum >/dev/null 2>&1; then
-				sha${algo} "$file" | awk '{print $4}' | tr -d "\n" > "$file".sha${algo}sum
-			else
-				sha${algo}sum "$file" | cut -d " " -f1 | tr -d "\n" > "$file".sha${algo}sum
-			fi
-		done
-	done
-}
-
-# nproc
-num_procs() {
-	# default to 4 because github actions
-	if command -v nproc >/dev/null 2>&1; then
-		nproc
-	elif command -v sysctl >/dev/null 2>&1; then
-		sysctl -n hw.logicalcpu
-	elif command -v getconf >/dev/null 2>&1; then
-		getconf _NPROCESSORS_ONLN
-	else
-		echo 4
-	fi
-}
-
-## Packaging ##
+# Copy CMakeLists.txt (if applicable)
 copy_cmake() {
 	_group "Copying CMake artifacts"
-    cp "$ROOTDIR"/CMakeLists.txt "$OUT_DIR"
+
+    cp "$ROOTDIR"/CMakeLists.txt out
+
 	_end
 }
 
+# Get a sha512 sum
+sums() {
+	for file in "$@"; do
+		must_install sha512sum
+		sha512sum "$file" | cut -d " " -f1 | tr -d "\n" >"$file".sha512sum
+	done
+}
+
+# package
 package() {
     _group "Packaging"
     mkdir -p "$ROOTDIR/artifacts"
 
 	TARBALL=$FILENAME-$PLATFORM-$ARCH-$VERSION.tar
 
-    cd "$OUT_DIR"
+    cd out
     tar cf "$ROOTDIR/artifacts/$TARBALL" ./*
 
     cd "$ROOTDIR/artifacts"
@@ -142,109 +168,17 @@ package() {
 	_end
 }
 
-
-## Platform Stuff ##
-
-SHARED_SUFFIX=so
-STATIC_SUFFIX=a
-# shellcheck disable=SC2209
-MAKE=make
-TAR=tar
-CC=gcc
-CXX=g++
-
-case "$PLATFORM" in
-	linux) ;;
-	freebsd)
-		TAR=gtar
-		MAKE="gmake"
-		CC=gcc15
-		CXX=g++15
-		;;
-	openbsd)
-		TAR=gtar
-		MAKE="gmake"
-		CC=egcc
-		CXX=eg++
-		;;
-	solaris)
-		TAR=gtar
-		MAKE="gmake"
-		;;
-	android)
-		CC=clang
-		CXX=clang++
-		;;
-	macos)
-		SHARED_SUFFIX=dylib
-		CC=clang
-		CXX=clang++
-		;;
-	ios)
-		SHARED_SUFFIX=dylib
-		: "${IOS_TARGET:=iphoneos}"
-		CC="xcrun --sdk $IOS_TARGET clang"
-		CXX="xcrun --sdk $IOS_TARGET clang++"
-		;;
-	windows)
-		SHARED_SUFFIX=dll
-		CC=cl
-		CXX=cl
-		;;
-	mingw)
-		SHARED_SUFFIX=dll
-		case "$ARCH" in
-			amd64)
-				CC=gcc
-				CXX=g++
-				;;
-			arm64)
-				CC=clang
-				CXX=clang++
-				;;
-		esac
-		;;
-esac
-
-must_install "$MAKE" "$TAR"
-
-export SHARED_SUFFIX
-export STATIC_SUFFIX
-export CC
-export CXX
-export MAKE
-export TAR
-
+# setup android paths/cross prefix
 android_paths() {
 	export ANDROID_NDK_HOME="$ANDROID_NDK_ROOT"
 
-    for host in linux-x86_64 linux-x86 darwin-x86_64 darwin-x86 windows-x86_64; do
-        if [ -d "$ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/$host/bin" ]; then
-            ANDROID_TOOLCHAIN="$ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/$host/bin"
-            export PATH="$ANDROID_TOOLCHAIN:$PATH"
-            break
-        fi
-    done
-}
-
-## Platform Stuff ##
-
-android() {
-	[ "$PLATFORM" = android ]
-}
-
-msvc() {
-	[ "$PLATFORM" = windows ]
-}
-
-msys() {
-	[ "$PLATFORM" = mingw ]
-}
-
-amd64() {
-	[ "$ARCH" = amd64 ] || [ "$ARCH" = x86_64 ]
-}
-
-aarch64() {
-	[ "$ARCH" = aarch64 ] || [ "$ARCH" = arm64 ]
+	# TODO: add other plats
+	for host in linux-x86_64 linux-x86 darwin-x86_64 darwin-x86 windows-x86_64; do
+		if [ -d "$ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/$host/bin" ]; then
+			ANDROID_TOOLCHAIN="$ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/$host/bin"
+			export CROSS_PREFIX="$ANDROID_TOOLCHAIN"
+			echo
+			break
+		fi
+	done
 }

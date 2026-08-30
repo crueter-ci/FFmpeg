@@ -8,6 +8,9 @@ on:
 permissions:
   contents: write
 
+env:
+  VERSION: unset
+
 jobs:
   build:
     name: Build
@@ -15,29 +18,28 @@ jobs:
 
   release:
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Download
         uses: actions/download-artifact@v8
+        with:
+          merge-multiple: true
 
       - name: Get Version
-        run: |
-          . ./tools/vars.sh
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
+        run: echo "VERSION=$(cat VERSION)" >> "$GITHUB_ENV"
 
       - name: Generate Changelog
-        run: |
-          ./tools/changelog.sh > changelog.md
+        run: ./tools/changelog.sh > changelog.md
 
       - name: Release
-        uses: softprops/action-gh-release@v2.3.2
+        uses: softprops/action-gh-release@v3
         with:
           body_path: ./changelog.md
           name: FFmpeg ${{ env.VERSION }}
-          tag_name: v${{ env.VERSION }}
+          tag_name: ${{ env.VERSION }}
           files: |
-            */*.tar.zst*
+            *.tar.zst*
 
           make_latest: true

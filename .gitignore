@@ -8,3 +8,7 @@ changelog.md
 
 *.exe
 nv-codec-headers
+FFmpeg-*
+
+TIMESTAMP
+VERSION

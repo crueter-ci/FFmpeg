@@ -7,7 +7,6 @@
 
 # Change to the current repo
 BASE_DOWNLOAD_URL="https://github.com/crueter-ci/$PRETTY_NAME/releases/download"
-TAG=v$VERSION
 
 artifact() {
     NAME="$1"
@@ -18,28 +17,22 @@ artifact() {
     COL1="[$NAME]($BASE_URL)"
 
     printf "| %s |" "$COL1"
-    for sum in 1 256 512; do
-        DOWNLOAD="[Download]($BASE_URL.sha${sum}sum)"
-        printf " %s |" "$DOWNLOAD"
-    done
+	printf " %s |" "[SHA512 sum]($BASE_URL.sha512sum)"
     echo
 }
 
 echo "Builds for $PRETTY_NAME $VERSION"
 echo
-echo "| Build | sha1sum | sha256sum | sha512sum |"
-echo "| ----- | ------- | --------- | --------- |"
+echo "| Build | sha512sum |"
+echo "| ----- | --------- |"
 
 artifact "Android (aarch64)" android-aarch64
-artifact "Android (x86_64)" android-x86_64
+artifact "Android (x86_64)" android-amd64
 artifact "Windows (amd64)" windows-amd64
-artifact "Windows (arm64)" windows-arm64
+artifact "Windows (aarch64)" windows-aarch64
 artifact "MinGW (amd64)" mingw-amd64
-artifact "MinGW (arm64)" mingw-arm64
+artifact "MinGW (aarch64)" mingw-aarch64
 artifact "Linux (amd64)" linux-amd64
 artifact "Linux (aarch64)" linux-aarch64
-artifact "Solaris (amd64)" solaris-amd64
-artifact "FreeBSD (amd64)" freebsd-amd64
-artifact "OpenBSD (amd64)" openbsd-amd64
-artifact "macOS (universal)" macos-universal
+artifact "macOS (aarch64)" macos-aarch64
 artifact "iOS (aarch64)" ios-aarch64
