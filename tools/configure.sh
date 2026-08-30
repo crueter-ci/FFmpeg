@@ -20,8 +20,13 @@ fi
 if msvc; then
 	_group "MSVC Setup"
 
-	VULKAN_SDK=$(cygpath -u "${VULKAN_SDK:?}")
-	FFNVCODEC_DIR=$(cygpath -u "${FFNVCODEC_DIR:?}")
+	# VULKAN_SDK=$(cygpath -w "${VULKAN_SDK:?}")
+	# FFNVCODEC_DIR=$(cygpath -w "${FFNVCODEC_DIR:?}")
+
+	vk_pc="$(cygpath -w "${VULKAN_SDK:?}"/lib/pkgconfig)"
+	nv_pc="$(cygpath -w "${FFNVCODEC_DIR:?}"/lib/pkgconfig)"
+
+	export PKG_CONFIG_PATH="$vk_pc:$nv_pc:$PKG_CONFIG_PATH"
 
 	printf -- "-- cl: "
 	command -v cl
