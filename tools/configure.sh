@@ -203,7 +203,7 @@ flags() {
 
 	# sccache
 	if [ -n "$SCCACHE_PATH" ]; then
-		if mingw; then
+		if windows; then
 			SCCACHE_PATH="$(cygpath -u "$SCCACHE_PATH")"
 		fi
 
