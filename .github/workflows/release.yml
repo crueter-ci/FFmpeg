@@ -8,6 +8,9 @@ on:
 permissions:
   contents: write
 
+env:
+  VERSION: unset
+
 jobs:
   build:
     name: Build

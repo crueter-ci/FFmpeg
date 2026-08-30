@@ -156,15 +156,8 @@ jobs:
       - name: Build
         run: make -C ${{ env.DIRECTORY }} -j8
 
-      # TODO(crueter): Find a way to not need this
       - name: Package (Windows)
-        if: matrix.platform == 'windows'
-        shell: bash
-        run: ./tools/package.sh
-
-      - name: Package (UNIX)
-        if: matrix.platform != 'windows'
-        run: ./tools/package.sh
+        run: bash ./tools/package.sh
 
       - name: Upload Tarball
         uses: actions/upload-artifact@v7
