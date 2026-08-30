@@ -51,7 +51,7 @@ if msvc; then
 
 	printf -- "-- ffnvcodec: "
 	pkg-config --cflags --libs ffnvcodec
-	
+
 	printf -- "-- vulkan: "
 	pkg-config --cflags --libs vulkan
 
@@ -246,6 +246,12 @@ configure() {
 	done
 
 	./configure "$@"
+
+	if msvc; then
+		# backslash greatness
+		sed -i 's/; gsub(\/\\\\\/, "\/"); /; /g' ffbuild/config.mak
+		sed -i 's/; gsub(\/\\\\\/, "\/")/; /g' ffbuild/config.mak
+	fi
 
 	_end
 }
