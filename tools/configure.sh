@@ -23,8 +23,8 @@ if msvc; then
 	# VULKAN_SDK=$(cygpath -w "${VULKAN_SDK:?}")
 	# FFNVCODEC_DIR=$(cygpath -w "${FFNVCODEC_DIR:?}")
 
-	vk_pc="$(cygpath -w "${VULKAN_SDK:?}"/lib/pkgconfig)"
-	nv_pc="$(cygpath -w "${FFNVCODEC_DIR:?}"/lib/pkgconfig)"
+	vk_pc="$(cygpath -u "${VULKAN_SDK:?}"/lib/pkgconfig)"
+	nv_pc="$(cygpath -u "${FFNVCODEC_DIR:?}"/lib/pkgconfig)"
 
 	export PKG_CONFIG_PATH="$vk_pc:$nv_pc:$PKG_CONFIG_PATH"
 
@@ -48,6 +48,13 @@ if msvc; then
 
 	printf -- "-- ninja: "
 	command -v ninja
+
+	printf -- "-- ffnvcodec: "
+	pkg-config --cflags --libs ffnvcodec
+	
+	printf -- "-- vulkan: "
+	pkg-config --cflags --libs vulkan
+
 	_end
 fi
 
@@ -183,8 +190,6 @@ flags() {
 			--toolchain=msvc
 			--arch=$ARCH
 			--target-os=win64
-			--extra-cflags=-I$VULKAN_SDK/include
-			--extra-cflags=-I$FFNVCODEC_DIR/include
 		EOF
 
 		CC=cl
