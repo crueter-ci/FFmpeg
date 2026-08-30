@@ -150,14 +150,8 @@ jobs:
         run: tar xf ${{ env.ARTIFACT}}
 
       # configure
-      - name: Configure (Windows)
-        if: matrix.platform == 'windows'
-        shell: bash
-        run: ./tools/configure.sh
-
-      - name: Configure (UNIX)
-        if: matrix.platform != 'windows'
-        run: ./tools/configure.sh
+      - name: Configure
+        run: bash ./tools/configure.sh
 
       - name: Build
         run: |
