@@ -57,10 +57,12 @@ must_install() {
 android_paths() {
 	export ANDROID_NDK_HOME="$ANDROID_NDK_ROOT"
 
+	# TODO: add other plats
 	for host in linux-x86_64 linux-x86 darwin-x86_64 darwin-x86 windows-x86_64; do
 		if [ -d "$ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/$host/bin" ]; then
 			ANDROID_TOOLCHAIN="$ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/$host/bin"
-			export PATH="$ANDROID_TOOLCHAIN:$PATH"
+			export CROSS_PREFIX="$ANDROID_TOOLCHAIN"
+			echo
 			break
 		fi
 	done

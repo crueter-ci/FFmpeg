@@ -20,9 +20,6 @@ fi
 if msvc; then
 	_group "MSVC Setup"
 
-	# VULKAN_SDK=$(cygpath -w "${VULKAN_SDK:?}")
-	# FFNVCODEC_DIR=$(cygpath -w "${FFNVCODEC_DIR:?}")
-
 	vk_pc="$(cygpath -u "${VULKAN_SDK:?}"/lib/pkgconfig)"
 	nv_pc="$(cygpath -u "${FFNVCODEC_DIR:?}"/lib/pkgconfig)"
 
@@ -150,11 +147,13 @@ flags() {
 		cat <<-EOF
 			--target-os=android
 			--arch=$ABI
+			--toolchain=llvm
 			--extra-ldflags=-Wl,-z,max-page-size=16384,--hash-style=both
+			--cross-prefix=${CROSS_PREFIX}/
 		EOF
 
-		CC="${ABI}"-linux-android"${ANDROID_API}"-clang
-		CXX="${ABI}"-linux-android"${ANDROID_API}"-clang++
+		CC="${CROSS_PREFIX}/${ABI}-linux-android${ANDROID_API}-clang"
+		CXX="${CROSS_PREFIX}/${ABI}-linux-android${ANDROID_API}-clang++"
 
 		if amd64; then
 			off asm

@@ -102,6 +102,7 @@ jobs:
           nasm: true
           ffnvcodec: true
           gas-preprocessor: true
+          make: true
 
       - name: Setup MSVC
         if: matrix.platform == 'windows'
@@ -158,27 +159,11 @@ jobs:
         if: matrix.platform != 'windows'
         run: ./tools/configure.sh
 
-      - name: Build (Windows)
-        if: matrix.platform == 'windows'
+      - name: Build
         run: |
-          $env:CL = " /MP /DEBUG:NONE"
+          cd ${{ env.DIRECTORY }}
 
-          cd $env:DIRECTORY
-
-          nmake
-          nmake install DESTDIR=""
-
-      - name: Build (UNIX)
-        if: matrix.platform != 'windows'
-        run: |
-          if [ "${{ matrix.platform }}" = "android" ]; then
-            . tools/common.sh
-            android_paths
-          fi
-
-          cd $DIRECTORY
-
-          make -j4
+          make -j8
           make install
 
       # TODO(crueter): Find a way to not need this
