@@ -215,10 +215,10 @@ flags() {
 	echo --cxx="$CXX"
 
 	# main flags
-	off avdevice avformat doc everything ffmpeg ffprobe network swresample
-	on static filter=yadif,scale small pic
+	off avdevice avformat doc everything ffmpeg ffprobe network
+	on static filter=yadif,scale small pic swresample
 
-	for codec in h264 vp8 vp9; do
+	for codec in h264 vp8 vp9 opus; do
 		on decoder="$codec"
 	done
 

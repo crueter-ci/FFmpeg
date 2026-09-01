@@ -13,41 +13,27 @@ add_library(ffmpeg INTERFACE)
 set_target_properties(ffmpeg PROPERTIES
     INTERFACE_INCLUDE_DIRECTORIES ${FFMPEG_INCLUDE_DIR})
 
-if(WIN32)
-    foreach (LIB swscale avcodec avfilter avutil)
-        add_library(${LIB} ${LIB_TYPE} IMPORTED GLOBAL)
-        add_library(FFmpeg::${LIB} ALIAS ${LIB})
-        target_link_libraries(ffmpeg INTERFACE FFmpeg::${LIB})
+foreach (LIB swscale avcodec swresample avfilter avutil)
+    add_library(${LIB} ${LIB_TYPE} IMPORTED GLOBAL)
+    add_library(FFmpeg::${LIB} ALIAS ${LIB})
+    target_link_libraries(ffmpeg INTERFACE FFmpeg::${LIB})
 
-        set_target_properties(${LIB} PROPERTIES
-            INTERFACE_INCLUDE_DIRECTORIES ${FFMPEG_INCLUDE_DIR})
+    set_target_properties(${LIB} PROPERTIES
+        INTERFACE_INCLUDE_DIRECTORIES ${FFMPEG_INCLUDE_DIR})
 
-        if (MSVC)
-            set(libname ${LIB}.lib)
-        elseif(MINGW)
-            set(libname lib${LIB}.a)
-        endif()
+    if (MSVC)
+        set(libname ${LIB}.lib)
+    else()
+        set(libname lib${LIB}.${LIB_SUFFIX})
+    endif()
 
-        set_target_properties(${LIB} PROPERTIES
-            IMPORTED_LOCATION ${FFMPEG_LIB_DIR}/${libname})
+    set_target_properties(${LIB} PROPERTIES
+        IMPORTED_LOCATION ${FFMPEG_LIB_DIR}/${libname})
 
+    if (WIN32)
         target_link_libraries(${LIB} INTERFACE bcrypt)
-    endforeach()
-else() # Unix
-    foreach (LIB swscale avcodec avfilter avutil)
-        add_library(${LIB} ${LIB_TYPE} IMPORTED GLOBAL)
-        set_target_properties(${LIB} PROPERTIES
-            INTERFACE_INCLUDE_DIRECTORIES ${FFMPEG_INCLUDE_DIR})
-
-        if (UNIX)
-            set_target_properties(${LIB} PROPERTIES
-                IMPORTED_LOCATION ${FFMPEG_LIB_DIR}/lib${LIB}.${LIB_SUFFIX})
-        endif()
-
-        add_library(FFmpeg::${LIB} ALIAS ${LIB})
-        target_link_libraries(ffmpeg INTERFACE FFmpeg::${LIB})
-    endforeach()
-endif()
+    endif()
+endforeach()
 
 if (MINGW)
     find_library(ICONV_LIBRARY iconv REQUIRED)
