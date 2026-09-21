@@ -121,7 +121,9 @@ flags() {
 	# Vulkan + nvdec
 	if linux || windows; then
 		vk
-		nvdec
+		if amd64; then
+			nvdec
+		fi
 	fi
 
 	# VAAPI
@@ -147,7 +149,6 @@ flags() {
 		cat <<-EOF
 			--target-os=android
 			--arch=$ABI
-			--toolchain=llvm
 			--extra-ldflags=-Wl,-z,max-page-size=16384,--hash-style=both
 			--cross-prefix=${CROSS_PREFIX}/
 		EOF
