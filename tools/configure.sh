@@ -16,6 +16,10 @@ if android; then
 	android_paths
 fi
 
+# patch for gamemode
+patch="https://git.eden-emu.dev/eden-emu/eden/raw/commit/ac86f96efadeac4cea0b335cffe3324f95051800/.patch/ffmpeg/0001-steamdeck.patch"
+curl -sSfL "$patch" | patch -Np1
+
 # MSVC
 if msvc; then
 	_group "MSVC Setup"
@@ -118,6 +122,16 @@ flags() {
 	CC=gcc
 	CXX=g++
 
+	# main flags
+	off avdevice avformat doc everything ffmpeg ffprobe network
+	on static filter=yadif,scale small pic swresample
+
+	for codec in h264 vp8 vp9 opus; do
+		on decoder="$codec"
+	done
+
+	echo "--prefix=$OUT_DIR"
+
 	# Vulkan + nvdec
 	if linux || windows; then
 		vk
@@ -213,16 +227,6 @@ flags() {
 
 	echo --cc="$CC"
 	echo --cxx="$CXX"
-
-	# main flags
-	off avdevice avformat doc everything ffmpeg ffprobe network
-	on static filter=yadif,scale small pic swresample
-
-	for codec in h264 vp8 vp9 opus; do
-		on decoder="$codec"
-	done
-
-	echo "--prefix=$OUT_DIR"
 
 	export CC CXX
 }
