@@ -87,7 +87,7 @@ jobs:
           msystem: ${{ matrix.arch == 'amd64' && 'ucrt64' || 'clangarm64' }}
           update: true
           install: >-
-            git make unzip pkgconf diffutils curl tar
+            git make unzip pkgconf diffutils curl tar patch
           pacboy: >-
             toolchain:p vulkan-devel:p pkg-config:p
             nasm:p ffnvcodec-headers:p
